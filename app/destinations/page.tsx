@@ -22,7 +22,10 @@ export default function DestinationsPage() {
               <strong>{destination.tagline}</strong>
               <p>{destination.description}</p>
               <div className="tag-row">{destination.bestFor.map((tag) => <small key={tag}>{tag}</small>)}</div>
-              <Link href={`/?destination=${encodeURIComponent(destination.name)}#plan`}>Plan this trip <ArrowRight size={15}/></Link>
+              <div className="card-actions">
+                <Link href={`/destinations/${destination.slug}`}>Explore destination <ArrowRight size={15}/></Link>
+                <Link href={`/?destination=${encodeURIComponent(destination.name)}#plan`}>Plan this trip</Link>
+              </div>
             </article>
           ))}
         </div>
