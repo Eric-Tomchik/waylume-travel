@@ -26,9 +26,8 @@ export async function POST(request: Request) {
   if (!adminSecret) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const body = await request.json();
-    if (!body.travelRequestId || !body.title || !body.summary || !Array.isArray(body.days)) {
-      return NextResponse.json({ error: "Trip, title, summary, and days are required" }, { status: 400 });
-    }
+    if (!body.travelRequestId || !body.title || !body.summary || !Array.isArray(body.days)) return NextResponse.json({ error: "Trip, title, summary, and days are required" }, { status: 400 });
+    const validSources = new Set(["manual", "draft-builder", "ai"]);
     const client = getConvexServerClient();
     const id = await client.mutation(itineraryUpsert, {
       adminSecret,
@@ -38,6 +37,7 @@ export async function POST(request: Request) {
       summary: String(body.summary),
       days: body.days.map((day: { day: unknown; title: unknown; details: unknown }) => ({ day: Number(day.day), title: String(day.title), details: String(day.details) })),
       published: Boolean(body.published),
+      source: validSources.has(String(body.source)) ? body.source : "manual",
     });
     return NextResponse.json({ ok: true, id }, { status: 200 });
   } catch {
