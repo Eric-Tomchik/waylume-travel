@@ -34,6 +34,15 @@ http.route({
 });
 
 http.route({
+  path: "/promotions",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    const promotions = await ctx.runQuery(internal.promotions.listActiveInternal, {});
+    return new Response(JSON.stringify({ promotions }), { status: 200, headers: jsonHeaders });
+  }),
+});
+
+http.route({
   path: "/admin/leads",
   method: "GET",
   handler: httpAction(async (ctx, request) => {
