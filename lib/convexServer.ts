@@ -19,3 +19,4 @@ export const analyticsSummary = makeFunctionReference<"query">("analytics:summar
 export const notificationsList = makeFunctionReference<"query">("notifications:list");
 export const notificationsEnqueue = makeFunctionReference<"mutation">("notifications:enqueue");
 export const notificationsMarkResult = makeFunctionReference<"mutation">("notifications:markResult");
+export const travelRequestGetForAdmin = makeFunctionReference<"query">("travelRequests:getForAdmin");
