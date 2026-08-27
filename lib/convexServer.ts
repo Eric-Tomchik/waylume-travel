@@ -9,3 +9,5 @@ export function getConvexServerClient() {
 
 export const portalCreateAccess = makeFunctionReference<"mutation">("portal:createAccess");
 export const portalResolveAccess = makeFunctionReference<"query">("portal:resolveAccess");
+export const itineraryListByRequest = makeFunctionReference<"query">("itineraries:listByRequest");
+export const itineraryUpsert = makeFunctionReference<"mutation">("itineraries:upsert");
