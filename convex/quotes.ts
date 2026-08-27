@@ -43,7 +43,7 @@ export const travelerRespond = mutation({
     if (quote.expiresAt && quote.expiresAt < Date.now()) throw new Error("Quote has expired");
     const now = Date.now();
     await ctx.db.patch(args.quoteId, { status: args.response, travelerMessage: args.message?.trim() || undefined, travelerRespondedAt: now, updatedAt: now });
-    if (args.response === "accepted") await ctx.db.patch(access.travelRequestId, { status: "booked", updatedAt: now });
+    await ctx.db.patch(access.travelRequestId, { status: "quoted", updatedAt: now });
     await ctx.db.insert("analyticsEvents", { event: `quote_${args.response}`, surface: "traveler_portal", travelRequestId: access.travelRequestId, quoteId: args.quoteId, createdAt: now });
     return { ok: true, status: args.response };
   },
