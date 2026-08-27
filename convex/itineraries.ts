@@ -6,6 +6,8 @@ function requireAdmin(secret: string) {
   if (!expected || secret !== expected) throw new Error("Unauthorized");
 }
 
+const source = v.optional(v.union(v.literal("manual"), v.literal("draft-builder"), v.literal("ai")));
+
 export const listByRequest = query({
   args: { adminSecret: v.string(), travelRequestId: v.id("travelRequests") },
   handler: async (ctx, args) => {
@@ -23,15 +25,17 @@ export const upsert = mutation({
     summary: v.string(),
     days: v.array(v.object({ day: v.number(), title: v.string(), details: v.string() })),
     published: v.boolean(),
+    source,
   },
   handler: async (ctx, args) => {
     requireAdmin(args.adminSecret);
     const { adminSecret, id, ...values } = args;
     void adminSecret;
+    const record = { ...values, source: values.source ?? "manual" as const };
     if (id) {
-      await ctx.db.patch(id, { ...values, updatedAt: Date.now() });
+      await ctx.db.patch(id, { ...record, updatedAt: Date.now() });
       return id;
     }
-    return await ctx.db.insert("itineraries", { ...values, createdAt: Date.now() });
+    return await ctx.db.insert("itineraries", { ...record, createdAt: Date.now() });
   },
 });
