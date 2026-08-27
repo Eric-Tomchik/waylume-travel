@@ -1,1 +1,0 @@
-Phase 6 adds interactive traveler quote responses, portal link revocation/replacement, first-party analytics, provider-ready notifications, and a provider-agnostic itinerary draft builder. Quote acceptance records traveler preference only and never finalizes supplier booking.
