@@ -1,0 +1,11 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import Link from "next/link";
+
+type EventRecord={_id:string;event:string;surface:string;createdAt:number;metadata?:string};
+type Summary={total:number;counts:Record<string,number>;recent:EventRecord[]};
+
+export default function AnalyticsPage(){const[token,setToken]=useState("");const[days,setDays]=useState(30);const[data,setData]=useState<Summary|null>(null);const[error,setError]=useState("");
+async function load(e?:FormEvent){e?.preventDefault();setError("");const r=await fetch(`/api/admin/analytics?days=${days}`,{headers:{"x-admin-token":token},cache:"no-store"});const d=await r.json();if(!r.ok)return setError(d.error||"Unable to load analytics.");setData(d);}
+return <main className="admin-shell"><div className="shell"><div className="admin-header"><div><Link href="/admin/overview" className="back-link">← Dashboard</Link><span className="eyebrow">Behavior insights</span><h1>Waylume analytics</h1></div></div>{!data?<form className="admin-login" onSubmit={load}><h2>Open analytics</h2><label>Window<select value={days} onChange={e=>setDays(Number(e.target.value))}><option value={7}>Last 7 days</option><option value={30}>Last 30 days</option><option value={90}>Last 90 days</option></select></label><input type="password" value={token} onChange={e=>setToken(e.target.value)} placeholder="Admin passcode" required/><button className="button">Load analytics</button>{error&&<p className="error">{error}</p>}</form>:<><div className="analytics-toolbar"><span><strong>{data.total}</strong> tracked events in the selected window</span><button className="ghost" onClick={()=>setData(null)}>Change window</button></div><section className="metric-grid analytics-metrics">{Object.entries(data.counts).sort((a,b)=>b[1]-a[1]).map(([event,count])=><article key={event}><small>{event.replaceAll("_"," ")}</small><b>{count}</b></article>)}</section><section className="dashboard-panel"><h2>Recent activity</h2>{data.recent.length?data.recent.map(item=><div className="analytics-row" key={item._id}><div><b>{item.event.replaceAll("_"," ")}</b><small>{item.surface}</small></div><time>{new Date(item.createdAt).toLocaleString()}</time></div>):<p className="muted">No events recorded in this window yet.</p>}</section></>}</div></main>}
