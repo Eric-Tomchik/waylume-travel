@@ -1,4 +1,4 @@
-import { internalMutation, internalQuery } from "./_generated/server";
+import { internalMutation, internalQuery, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 const quoteStatus = v.union(v.literal("draft"), v.literal("sent"), v.literal("accepted"), v.literal("expired"), v.literal("declined"));
@@ -25,5 +25,26 @@ export const updateStatusInternal = internalMutation({
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, { status: args.status, updatedAt: Date.now() });
     return { ok: true };
+  },
+});
+
+export const travelerRespond = mutation({
+  args: {
+    tokenHash: v.string(),
+    quoteId: v.id("quotes"),
+    response: v.union(v.literal("accepted"), v.literal("declined")),
+    message: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const access = await ctx.db.query("portalAccess").withIndex("by_tokenHash", q => q.eq("tokenHash", args.tokenHash)).unique();
+    if (!access || access.revokedAt || access.expiresAt < Date.now() || !access.travelRequestId) throw new Error("Invalid or expired portal access");
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote || quote.travelRequestId !== access.travelRequestId || quote.status === "draft") throw new Error("Quote is not available for this traveler");
+    if (quote.expiresAt && quote.expiresAt < Date.now()) throw new Error("Quote has expired");
+    const now = Date.now();
+    await ctx.db.patch(args.quoteId, { status: args.response, travelerMessage: args.message?.trim() || undefined, travelerRespondedAt: now, updatedAt: now });
+    if (args.response === "accepted") await ctx.db.patch(access.travelRequestId, { status: "booked", updatedAt: now });
+    await ctx.db.insert("analyticsEvents", { event: `quote_${args.response}`, surface: "traveler_portal", travelRequestId: access.travelRequestId, quoteId: args.quoteId, createdAt: now });
+    return { ok: true, status: args.response };
   },
 });
