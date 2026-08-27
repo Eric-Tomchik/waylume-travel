@@ -59,7 +59,7 @@ export default function Home() {
           <span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span>
         </a>
         <nav>
-          <a href="/destinations">Destinations</a><a href="/deals">Promotions</a><a href="#why">Why Waylume</a><a href="#plan">Plan a Trip</a>
+          <a href="/destinations">Destinations</a><a href="/deals">Promotions</a><a href="/smart-planner">Smart Planner</a><a href="#plan">Plan a Trip</a>
         </nav>
         <a className="button small" href="#plan">Start Planning</a>
       </header>
@@ -70,7 +70,7 @@ export default function Home() {
             <div className="eyebrow"><Sparkles size={16}/> Travel, illuminated.</div>
             <h1>Find your next <span>unforgettable</span> escape.</h1>
             <p className="lead">Waylume combines modern trip discovery with personal travel-advisor support—so you can explore ideas, request options, and move from inspiration to vacation with confidence.</p>
-            <div className="actions"><a className="button" href="#plan">Build My Trip <ArrowRight size={18}/></a><a className="ghost" href="/destinations">Explore destinations</a></div>
+            <div className="actions"><a className="button" href="/smart-planner">Try Smart Planner <ArrowRight size={18}/></a><a className="ghost" href="/destinations">Explore destinations</a></div>
             <div className="trust"><span><Check/>Personalized planning</span><span><Check/>Supplier-backed options</span><span><Check/>Human advisor support</span></div>
           </div>
           <div className="hero-card">
@@ -86,7 +86,7 @@ export default function Home() {
           <article><Plane/><h3>Flights + Stays</h3><p>Build a city escape, family trip, or flexible flight-and-hotel itinerary.</p><a href="#plan">Request options →</a></article>
           <article><Waves/><h3>Resorts</h3><p>Beachfront, all-inclusive, adults-only, luxury, and family-friendly stays.</p><a href="/destinations">Browse destinations →</a></article>
           <article><Ship/><h3>Cruises</h3><p>Ocean cruises, river journeys, quick getaways, and bucket-list sailings.</p><a href="/deals">Explore ideas →</a></article>
-          <article><Compass/><h3>Custom Trips</h3><p>Multi-stop journeys, celebrations, romantic escapes, and tailored experiences.</p><a href="#plan">Design my trip →</a></article>
+          <article><Compass/><h3>Smart Planner</h3><p>Answer a few preference questions and get a stronger destination starting point.</p><a href="/smart-planner">Match my trip →</a></article>
         </div>
       </section>
 
@@ -111,7 +111,7 @@ export default function Home() {
         </form>
       </section>
 
-      <footer><div className="shell footer"><div className="brand"><img src="/waylume-mark.svg" alt="" className="brand-mark"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span></div><p>Personalized travel discovery, planning support, and vacation inspiration. <a href="/destinations">Destinations</a> · <a href="/deals">Promotions</a></p><small>© {new Date().getFullYear()} Waylume Travel. All rights reserved.</small></div></footer>
+      <footer><div className="shell footer"><div className="brand"><img src="/waylume-mark.svg" alt="" className="brand-mark"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span></div><p>Personalized travel discovery, planning support, and vacation inspiration. <a href="/destinations">Destinations</a> · <a href="/deals">Promotions</a> · <a href="/smart-planner">Smart Planner</a></p><small>© {new Date().getFullYear()} Waylume Travel. All rights reserved.</small></div></footer>
     </main>
   );
 }
