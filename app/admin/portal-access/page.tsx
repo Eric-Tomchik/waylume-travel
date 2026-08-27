@@ -1,0 +1,8 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import Link from "next/link";
+
+export default function PortalAccessAdminPage(){const[token,setToken]=useState("");const[email,setEmail]=useState("");const[requestId,setRequestId]=useState("");const[result,setResult]=useState<{portalPath:string;expiresAt:number}|null>(null);const[error,setError]=useState("");
+async function submit(e:FormEvent){e.preventDefault();setError("");setResult(null);const r=await fetch("/api/admin/portal-access",{method:"POST",headers:{"Content-Type":"application/json","x-admin-token":token},body:JSON.stringify({email,travelRequestId:requestId})});const d=await r.json();if(!r.ok)return setError(d.error||"Unable to create access link.");setResult(d);}
+return <main className="admin-shell"><div className="shell"><div className="admin-header"><div><Link href="/admin/overview" className="back-link">← Dashboard</Link><span className="eyebrow">Traveler access</span><h1>Create secure portal link</h1></div></div><form className="cms-form" onSubmit={submit}><h2>New traveler access</h2><label>Traveler email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required/></label><label>Trip request ID<input value={requestId} onChange={e=>setRequestId(e.target.value)} required/></label><label className="wide">Advisor passcode<input type="password" value={token} onChange={e=>setToken(e.target.value)} required/></label><button className="button wide">Generate 7-day portal link</button>{error&&<p className="error wide">{error}</p>}{result&&<div className="wide access-result"><strong>Traveler link created</strong><code>{result.portalPath}</code><small>Expires {new Date(result.expiresAt).toLocaleString()}</small></div>}</form></div></main>}
