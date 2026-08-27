@@ -14,14 +14,12 @@ export const create = internalMutation({
     tripType: v.string(),
     notes: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
-    return await ctx.db.insert("travelRequests", {
-      ...args,
-      status: "new",
-      source: "waylume-website",
-      createdAt: Date.now(),
-    });
-  },
+  handler: async (ctx, args) => await ctx.db.insert("travelRequests", {
+    ...args,
+    status: "new",
+    source: "waylume-website",
+    createdAt: Date.now(),
+  }),
 });
 
 export const listRecentInternal = internalQuery({
@@ -29,10 +27,21 @@ export const listRecentInternal = internalQuery({
   handler: async (ctx, args) => await ctx.db.query("travelRequests").withIndex("by_createdAt").order("desc").take(Math.min(args.limit ?? 50, 100)),
 });
 
-export const updateStatusInternal = internalMutation({
-  args: { id: v.id("travelRequests"), status },
+export const updateInternal = internalMutation({
+  args: {
+    id: v.id("travelRequests"),
+    status: v.optional(status),
+    advisorNotes: v.optional(v.string()),
+    followUpAt: v.optional(v.number()),
+    clearFollowUp: v.optional(v.boolean()),
+  },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, { status: args.status });
+    const patch: { status?: "new" | "contacted" | "quoted" | "booked" | "closed"; advisorNotes?: string; followUpAt?: number | undefined; updatedAt: number } = { updatedAt: Date.now() };
+    if (args.status) patch.status = args.status;
+    if (args.advisorNotes !== undefined) patch.advisorNotes = args.advisorNotes;
+    if (args.clearFollowUp) patch.followUpAt = undefined;
+    else if (args.followUpAt !== undefined) patch.followUpAt = args.followUpAt;
+    await ctx.db.patch(args.id, patch);
     return { ok: true };
   },
 });
