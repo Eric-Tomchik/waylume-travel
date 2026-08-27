@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Check, Compass, Plane, Ship, Sparkles, Waves } from "lucide-react";
 
 type FormState = {
@@ -29,6 +29,11 @@ export default function Home() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
+  useEffect(() => {
+    const destination = new URLSearchParams(window.location.search).get("destination");
+    if (destination) setForm(current => ({ ...current, destination }));
+  }, []);
+
   async function submitTrip(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("loading");
@@ -54,7 +59,7 @@ export default function Home() {
           <span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span>
         </a>
         <nav>
-          <a href="#experiences">Explore</a><a href="#why">Why Waylume</a><a href="#plan">Plan a Trip</a>
+          <a href="/destinations">Destinations</a><a href="/deals">Promotions</a><a href="#why">Why Waylume</a><a href="#plan">Plan a Trip</a>
         </nav>
         <a className="button small" href="#plan">Start Planning</a>
       </header>
@@ -65,7 +70,7 @@ export default function Home() {
             <div className="eyebrow"><Sparkles size={16}/> Travel, illuminated.</div>
             <h1>Find your next <span>unforgettable</span> escape.</h1>
             <p className="lead">Waylume combines modern trip discovery with personal travel-advisor support—so you can explore ideas, request options, and move from inspiration to vacation with confidence.</p>
-            <div className="actions"><a className="button" href="#plan">Build My Trip <ArrowRight size={18}/></a><a className="ghost" href="#experiences">Explore ideas</a></div>
+            <div className="actions"><a className="button" href="#plan">Build My Trip <ArrowRight size={18}/></a><a className="ghost" href="/destinations">Explore destinations</a></div>
             <div className="trust"><span><Check/>Personalized planning</span><span><Check/>Supplier-backed options</span><span><Check/>Human advisor support</span></div>
           </div>
           <div className="hero-card">
@@ -79,8 +84,8 @@ export default function Home() {
         <div className="section-head"><div><span className="eyebrow">Explore your way</span><h2>One place to start every kind of journey.</h2></div><p>Tell us what sounds good. We’ll help shape it into real options using available travel suppliers and advisor resources.</p></div>
         <div className="cards">
           <article><Plane/><h3>Flights + Stays</h3><p>Build a city escape, family trip, or flexible flight-and-hotel itinerary.</p><a href="#plan">Request options →</a></article>
-          <article><Waves/><h3>Resorts</h3><p>Beachfront, all-inclusive, adults-only, luxury, and family-friendly stays.</p><a href="#plan">Find a resort →</a></article>
-          <article><Ship/><h3>Cruises</h3><p>Ocean cruises, river journeys, quick getaways, and bucket-list sailings.</p><a href="#plan">Explore cruises →</a></article>
+          <article><Waves/><h3>Resorts</h3><p>Beachfront, all-inclusive, adults-only, luxury, and family-friendly stays.</p><a href="/destinations">Browse destinations →</a></article>
+          <article><Ship/><h3>Cruises</h3><p>Ocean cruises, river journeys, quick getaways, and bucket-list sailings.</p><a href="/deals">Explore ideas →</a></article>
           <article><Compass/><h3>Custom Trips</h3><p>Multi-stop journeys, celebrations, romantic escapes, and tailored experiences.</p><a href="#plan">Design my trip →</a></article>
         </div>
       </section>
@@ -106,7 +111,7 @@ export default function Home() {
         </form>
       </section>
 
-      <footer><div className="shell footer"><div className="brand"><img src="/waylume-mark.svg" alt="" className="brand-mark"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span></div><p>Personalized travel discovery, planning support, and vacation inspiration.</p><small>© {new Date().getFullYear()} Waylume Travel. All rights reserved.</small></div></footer>
+      <footer><div className="shell footer"><div className="brand"><img src="/waylume-mark.svg" alt="" className="brand-mark"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span></div><p>Personalized travel discovery, planning support, and vacation inspiration. <a href="/destinations">Destinations</a> · <a href="/deals">Promotions</a></p><small>© {new Date().getFullYear()} Waylume Travel. All rights reserved.</small></div></footer>
     </main>
   );
 }
