@@ -3,7 +3,6 @@ import "./globals.css";
 import "./phase2.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://waylumetravel.com"),
   title: {
     default: "Waylume Travel | Personalized Travel Planning",
     template: "%s | Waylume Travel",
