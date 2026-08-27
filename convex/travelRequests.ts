@@ -1,7 +1,12 @@
-import { internalMutation, internalQuery } from "./_generated/server";
+import { internalMutation, internalQuery, query } from "./_generated/server";
 import { v } from "convex/values";
 
 const status = v.union(v.literal("new"), v.literal("contacted"), v.literal("quoted"), v.literal("booked"), v.literal("closed"));
+
+function requireAdmin(secret: string) {
+  const expected = process.env.WAYLUME_ADMIN_TOKEN;
+  if (!expected || secret !== expected) throw new Error("Unauthorized");
+}
 
 export const create = internalMutation({
   args: {
@@ -25,6 +30,14 @@ export const create = internalMutation({
 export const listRecentInternal = internalQuery({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => await ctx.db.query("travelRequests").withIndex("by_createdAt").order("desc").take(Math.min(args.limit ?? 50, 100)),
+});
+
+export const getForAdmin = query({
+  args: { adminSecret: v.string(), id: v.id("travelRequests") },
+  handler: async (ctx, args) => {
+    requireAdmin(args.adminSecret);
+    return await ctx.db.get(args.id);
+  },
 });
 
 export const updateInternal = internalMutation({
