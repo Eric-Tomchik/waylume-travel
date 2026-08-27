@@ -1,5 +1,7 @@
-import { internalMutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, query } from "./_generated/server";
 import { v } from "convex/values";
+
+const status = v.union(v.literal("new"), v.literal("contacted"), v.literal("quoted"), v.literal("booked"), v.literal("closed"));
 
 export const create = internalMutation({
   args: {
@@ -22,13 +24,20 @@ export const create = internalMutation({
   },
 });
 
+export const listRecentInternal = internalQuery({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => await ctx.db.query("travelRequests").withIndex("by_createdAt").order("desc").take(Math.min(args.limit ?? 50, 100)),
+});
+
+export const updateStatusInternal = internalMutation({
+  args: { id: v.id("travelRequests"), status },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, { status: args.status });
+    return { ok: true };
+  },
+});
+
 export const listRecent = query({
   args: { limit: v.optional(v.number()) },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("travelRequests")
-      .withIndex("by_createdAt")
-      .order("desc")
-      .take(Math.min(args.limit ?? 25, 100));
-  },
+  handler: async (ctx, args) => await ctx.db.query("travelRequests").withIndex("by_createdAt").order("desc").take(Math.min(args.limit ?? 25, 100)),
 });
