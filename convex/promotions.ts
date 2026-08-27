@@ -1,7 +1,7 @@
-import { internalMutation, internalQuery, query } from "./_generated/server";
+import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 
-export const listActive = query({
+export const listActiveInternal = internalQuery({
   args: {},
   handler: async (ctx) => await ctx.db.query("promotions").withIndex("by_active", q => q.eq("active", true)).collect(),
 });
