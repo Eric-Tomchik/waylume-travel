@@ -27,8 +27,9 @@ export default function OverviewPage() {
   }
 
   return <main className="admin-shell"><div className="shell">
-    <div className="admin-header"><div><Link href="/" className="back-link">← Public website</Link><span className="eyebrow">Waylume operations</span><h1>Advisor dashboard</h1></div>{summary && <div className="admin-actions"><Link className="button small" href="/admin">Trip inquiries</Link><Link className="button small" href="/admin/promotions">Promotions</Link><Link className="button small" href="/admin/suppliers">Suppliers</Link></div>}</div>
-    {!summary ? <form className="admin-login" onSubmit={load}><h2>Advisor access</h2><p>Use the same protected Waylume advisor passcode.</p><input type="password" value={token} onChange={e=>setToken(e.target.value)} placeholder="Admin passcode" required/><button className="button">Open dashboard</button>{error && <p className="error">{error}</p>}</form> : <>
+    <div className="admin-header"><div><Link href="/" className="back-link">← Public website</Link><span className="eyebrow">Waylume operations</span><h1>Advisor dashboard</h1></div></div>
+    {!summary ? <form className="admin-login" onSubmit={load}><h2>Advisor access</h2><p>Use the protected Waylume advisor passcode.</p><input type="password" value={token} onChange={e=>setToken(e.target.value)} placeholder="Admin passcode" required/><button className="button">Open dashboard</button>{error && <p className="error">{error}</p>}</form> : <>
+      <nav className="operations-nav"><Link href="/admin">Trip inquiries</Link><Link href="/admin/promotions">Promotions</Link><Link href="/admin/suppliers">Suppliers</Link><Link href="/admin/portal-access">Portal access</Link><Link href="/admin/notifications">Notifications</Link><Link href="/admin/analytics">Analytics</Link></nav>
       <section className="metric-grid">
         <article><small>Total inquiries</small><b>{summary.totalLeads}</b></article><article><small>Open pipeline</small><b>{summary.openLeads}</b></article><article><small>Booked</small><b>{summary.bookedLeads}</b></article><article><small>Quotes</small><b>{summary.totalQuotes}</b></article><article><small>Accepted quotes</small><b>{summary.acceptedQuotes}</b></article><article><small>Active promos</small><b>{summary.activePromotions}</b></article>
       </section>
