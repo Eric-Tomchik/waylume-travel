@@ -3,12 +3,12 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const payload = await request.json();
-    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-    if (!convexUrl) {
-      return NextResponse.json({ error: "Convex URL is not configured" }, { status: 503 });
+    const convexSiteUrl = process.env.CONVEX_SITE_URL;
+    if (!convexSiteUrl) {
+      return NextResponse.json({ error: "Convex HTTP endpoint is not configured" }, { status: 503 });
     }
 
-    const response = await fetch(`${convexUrl}/trip-request`, {
+    const response = await fetch(`${convexSiteUrl}/trip-request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
