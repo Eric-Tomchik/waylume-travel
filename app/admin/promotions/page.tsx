@@ -18,6 +18,7 @@ const emptyPromotion: Promotion = { title: "", description: "", destination: "",
 
 export default function PromotionsAdminPage() {
   const [token, setToken] = useState("");
+  const [authorized, setAuthorized] = useState(false);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [form, setForm] = useState<Promotion>(emptyPromotion);
   const [message, setMessage] = useState("");
@@ -26,8 +27,9 @@ export default function PromotionsAdminPage() {
     e?.preventDefault();
     setMessage("");
     const response = await fetch("/api/admin/promotions", { headers: { "x-admin-token": token }, cache: "no-store" });
-    if (!response.ok) return setMessage("Unable to open promotions manager.");
+    if (!response.ok) { setAuthorized(false); return setMessage("Unable to open promotions manager."); }
     const data = await response.json();
+    setAuthorized(true);
     setPromotions(data.promotions ?? []);
   }
 
@@ -53,12 +55,12 @@ export default function PromotionsAdminPage() {
     <main className="admin-shell">
       <div className="shell">
         <div className="admin-header"><div><Link href="/admin" className="back-link">← Trip inquiries</Link><span className="eyebrow">Advisor content</span><h1>Promotions manager</h1></div><Link href="/deals" className="button small">View public promotions</Link></div>
-        {!promotions.length && (
+        {!authorized && (
           <form className="admin-login" onSubmit={load}>
-            <h2>Advisor access</h2><input type="password" value={token} onChange={e=>setToken(e.target.value)} placeholder="Admin passcode" required/><button className="button">Open manager</button>{message && <p>{message}</p>}
+            <h2>Advisor access</h2><input type="password" value={token} onChange={e=>setToken(e.target.value)} placeholder="Admin passcode" required/><button className="button">Open manager</button>{message && <p className="error">{message}</p>}
           </form>
         )}
-        {!!promotions.length && <>
+        {authorized && <>
           <form className="cms-form" onSubmit={save}>
             <h2>{form._id ? "Edit promotion" : "Create promotion"}</h2>
             <label>Title<input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} required/></label>
@@ -71,7 +73,8 @@ export default function PromotionsAdminPage() {
             <div className="wide cms-actions"><button className="button">Save promotion</button>{form._id && <button type="button" className="ghost" onClick={()=>setForm(emptyPromotion)}>Cancel edit</button>}</div>
             {message && <p className="wide success">{message}</p>}
           </form>
-          <div className="cms-list">{promotions.sort((a,b)=>a.sortOrder-b.sortOrder).map(promo=><article key={promo._id}><div><small>{promo.active ? "Active" : "Hidden"} · order {promo.sortOrder}</small><h3>{promo.title}</h3><p>{promo.description}</p></div><button className="ghost" onClick={()=>edit(promo)}>Edit</button></article>)}</div>
+          {!promotions.length && <div className="empty-state"><h2>No promotions yet.</h2><p>Create the first promotion above. Active items automatically appear on the public promotions page.</p></div>}
+          <div className="cms-list">{[...promotions].sort((a,b)=>a.sortOrder-b.sortOrder).map(promo=><article key={promo._id}><div><small>{promo.active ? "Active" : "Hidden"} · order {promo.sortOrder}</small><h3>{promo.title}</h3><p>{promo.description}</p></div><button className="ghost" onClick={()=>edit(promo)}>Edit</button></article>)}</div>
         </>}
       </div>
     </main>
