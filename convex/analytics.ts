@@ -31,8 +31,14 @@ export const track = mutation({
     if (!args.surface.trim() || args.surface.length > 80) throw new Error("Invalid analytics surface");
     if (args.metadata && args.metadata.length > 1000) throw new Error("Analytics metadata too large");
 
-    const { intakeSecret: _intakeSecret, ...event } = args;
-    return await ctx.db.insert("analyticsEvents", { ...event, createdAt: Date.now() });
+    return await ctx.db.insert("analyticsEvents", {
+      event: args.event,
+      surface: args.surface,
+      ...(args.travelRequestId ? { travelRequestId: args.travelRequestId } : {}),
+      ...(args.quoteId ? { quoteId: args.quoteId } : {}),
+      ...(args.metadata ? { metadata: args.metadata } : {}),
+      createdAt: Date.now(),
+    });
   },
 });
 
