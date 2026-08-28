@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck, Sparkles } from "lucide-react";
 import AiConcierge from "@/components/AiConcierge";
+
+export const metadata: Metadata = {
+  title: "AI Travel Concierge",
+  description: "Plan a trip conversationally with Waylume AI, then hand the finished brief to a real travel advisor for supplier research and booking support.",
+};
 
 export default function ConciergePage() {
   return (
