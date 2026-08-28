@@ -18,11 +18,12 @@ export async function POST(request: Request) {
     if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
 
     const convexSiteUrl = process.env.CONVEX_SITE_URL;
-    if (!convexSiteUrl) return NextResponse.json({ error: "Trip request service is not configured" }, { status: 503 });
+    const intakeSecret = process.env.WAYLUME_INTAKE_SECRET;
+    if (!convexSiteUrl || !intakeSecret) return NextResponse.json({ error: "Trip request service is not configured" }, { status: 503 });
 
     const response = await fetch(`${convexSiteUrl}/trip-request`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-waylume-intake-secret": intakeSecret },
       body: JSON.stringify(validation.payload),
       cache: "no-store",
     });
