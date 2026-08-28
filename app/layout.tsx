@@ -11,14 +11,14 @@ import "./phase8.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Waylume Travel | Personalized Travel Planning",
+    default: "Waylume Travel | AI-Assisted Travel Planning",
     template: "%s | Waylume Travel",
   },
   description:
-    "Discover flights, resorts, cruises, and vacation ideas with personalized support from Waylume Travel, an Independent Agent of Archer.",
+    "Plan trips conversationally with Waylume AI, then work with a real travel advisor for current supplier options, pricing, and booking support. Independent Agent of Archer.",
   openGraph: {
-    title: "Waylume Travel",
-    description: "Travel discovery with personal advisor support.",
+    title: "Waylume Travel | AI-Assisted Travel Planning",
+    description: "Conversational travel discovery with real advisor follow-through.",
     type: "website",
   },
   robots: { index: true, follow: true },
