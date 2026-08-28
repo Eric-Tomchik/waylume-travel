@@ -31,7 +31,12 @@ type TripProfile = {
   lodging?: string;
   interests?: string[];
 };
-type Recommendation = { title: string; subtitle: string; why: string; kind: "destination" | "stay" | "experience" | "flight" | "cruise" };
+type Recommendation = {
+  title: string;
+  subtitle: string;
+  why: string;
+  kind: "destination" | "stay" | "experience" | "flight" | "cruise";
+};
 type PreviewDay = { day: number; title: string; details: string };
 type ConciergeResponse = {
   reply: string;
@@ -51,8 +56,19 @@ const STARTER: ChatMessage = {
 const STARTER_PROMPTS = ["Warm beach getaway", "Help me choose a cruise", "Romantic long weekend", "Family vacation ideas"];
 const STORAGE_KEY = "waylume-ai-concierge-v2";
 
+function track(event: string, surface: string, metadata?: Record<string, string | number | boolean>) {
+  void fetch("/api/analytics", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ event, surface, metadata }),
+    keepalive: true,
+  }).catch(() => undefined);
+}
+
 export default function AiConcierge({ mode = "floating" }: Props) {
   const pathname = usePathname();
+  const blockedPath = pathname?.startsWith("/admin") || pathname?.startsWith("/portal") || pathname === "/concierge";
+  const dormant = mode === "floating" && blockedPath;
   const [open, setOpen] = useState(mode === "full");
   const [messages, setMessages] = useState<ChatMessage[]>([STARTER]);
   const [profile, setProfile] = useState<TripProfile>({});
@@ -69,10 +85,10 @@ export default function AiConcierge({ mode = "floating" }: Props) {
   const [handoffStatus, setHandoffStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [handoffMessage, setHandoffMessage] = useState("");
   const messagesEnd = useRef<HTMLDivElement | null>(null);
-
-  const blockedPath = pathname?.startsWith("/admin") || pathname?.startsWith("/portal") || pathname === "/concierge";
+  const openedTracked = useRef(false);
 
   useEffect(() => {
+    if (dormant) return;
     if (mode === "full") setOpen(true);
     try {
       const saved = sessionStorage.getItem(STORAGE_KEY);
@@ -91,16 +107,26 @@ export default function AiConcierge({ mode = "floating" }: Props) {
     } finally {
       setHydrated(true);
     }
-  }, [mode]);
+  }, [dormant, mode]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ messages, profile, recommendations, itineraryPreview, nextPrompts, readyForAdvisor, source }));
-  }, [hydrated, messages, profile, recommendations, itineraryPreview, nextPrompts, readyForAdvisor, source]);
+    if (dormant || !hydrated) return;
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ messages, profile, recommendations, itineraryPreview, nextPrompts, readyForAdvisor, source }),
+    );
+  }, [dormant, hydrated, messages, profile, recommendations, itineraryPreview, nextPrompts, readyForAdvisor, source]);
 
   useEffect(() => {
+    if (dormant) return;
     messagesEnd.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [messages, loading, showHandoff]);
+  }, [dormant, messages, loading, showHandoff]);
+
+  useEffect(() => {
+    if (dormant || mode !== "full" || openedTracked.current) return;
+    openedTracked.current = true;
+    track("ai_concierge_opened", "concierge_full", { page: pathname || "/concierge" });
+  }, [dormant, mode, pathname]);
 
   const briefItems = useMemo(() => [
     { icon: MapPin, label: "Destination", value: profile.destination },
@@ -108,6 +134,14 @@ export default function AiConcierge({ mode = "floating" }: Props) {
     { icon: Users, label: "Travelers", value: profile.travelers ? String(profile.travelers) : undefined },
     { icon: WalletCards, label: "Budget", value: profile.budget },
   ], [profile]);
+
+  function openFloating() {
+    setOpen(true);
+    if (!openedTracked.current) {
+      openedTracked.current = true;
+      track("ai_concierge_opened", "concierge_floating", { page: pathname || "/" });
+    }
+  }
 
   async function sendMessage(text = input) {
     const value = text.trim().slice(0, 1200);
@@ -118,6 +152,11 @@ export default function AiConcierge({ mode = "floating" }: Props) {
     setLoading(true);
     setShowHandoff(false);
     setHandoffStatus("idle");
+    track("ai_message_sent", mode === "full" ? "concierge_full" : "concierge_floating", {
+      page: pathname || "/",
+      turn: outgoing.filter(message => message.role === "user").length,
+    });
+
     try {
       const response = await fetch("/api/ai/concierge", {
         method: "POST",
@@ -134,7 +173,10 @@ export default function AiConcierge({ mode = "floating" }: Props) {
       setSource(data.source === "openai" ? "openai" : "demo");
       setMessages(current => [...current, { role: "assistant", content: data.reply }].slice(-18));
     } catch {
-      setMessages(current => [...current, { role: "assistant", content: "I hit a connection issue, but your trip notes are still here. Try again, or send the current brief to a Waylume advisor." }]);
+      setMessages(current => [
+        ...current,
+        { role: "assistant", content: "I hit a connection issue, but your trip notes are still here. Try again, or send the current brief to a Waylume advisor." },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -151,6 +193,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
     setInput("");
     setShowHandoff(false);
     setHandoffStatus("idle");
+    setHandoffMessage("");
     sessionStorage.removeItem(STORAGE_KEY);
   }
 
@@ -159,6 +202,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
     if (!contact.name.trim() || !contact.email.trim()) return;
     setHandoffStatus("loading");
     setHandoffMessage("");
+
     const lastAssistant = [...messages].reverse().find(message => message.role === "assistant")?.content ?? "";
     const notes = [
       "AI-assisted Waylume planning brief.",
@@ -169,6 +213,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
       itineraryPreview.length ? `Preview itinerary: ${itineraryPreview.map(day => `Day ${day.day} ${day.title}`).join("; ")}.` : "",
       lastAssistant ? `Latest planning summary: ${lastAssistant}` : "",
     ].filter(Boolean).join(" ").slice(0, 1900);
+
     try {
       const response = await fetch("/api/trip-request", {
         method: "POST",
@@ -189,13 +234,17 @@ export default function AiConcierge({ mode = "floating" }: Props) {
       if (!response.ok) throw new Error(data.error || "Unable to send trip brief");
       setHandoffStatus("success");
       setHandoffMessage("Your planning brief is in the Waylume advisor pipeline.");
+      track("ai_advisor_handoff", mode === "full" ? "concierge_full" : "concierge_floating", {
+        page: pathname || "/",
+        ai: source === "openai",
+      });
     } catch (error) {
       setHandoffStatus("error");
       setHandoffMessage(error instanceof Error ? error.message : "Advisor handoff is not configured yet.");
     }
   }
 
-  if (mode === "floating" && blockedPath) return null;
+  if (dormant) return null;
 
   const content = (
     <div className={`ai-concierge ${mode === "full" ? "ai-concierge-full" : ""}`}>
@@ -220,25 +269,43 @@ export default function AiConcierge({ mode = "floating" }: Props) {
                 <div>{message.content}</div>
               </div>
             ))}
-            {loading && <div className="ai-message assistant"><span className="ai-mini-avatar"><Bot size={15} /></span><div className="ai-typing"><i /><i /><i /></div></div>}
+            {loading && (
+              <div className="ai-message assistant">
+                <span className="ai-mini-avatar"><Bot size={15} /></span>
+                <div className="ai-typing"><i /><i /><i /></div>
+              </div>
+            )}
 
             {!loading && recommendations.length > 0 && (
               <div className="ai-recommendations">
                 {recommendations.map((item, index) => (
-                  <button key={`${item.title}-${index}`} type="button" onClick={() => sendMessage(`Tell me more about ${item.subtitle}`)}>
-                    <small>{item.title}</small><strong>{item.subtitle}</strong><span>{item.why}</span><ArrowRight size={15} />
+                  <button key={`${item.title}-${index}`} type="button" onClick={() => void sendMessage(`Tell me more about ${item.subtitle}`)}>
+                    <small>{item.title}</small>
+                    <strong>{item.subtitle}</strong>
+                    <span>{item.why}</span>
+                    <ArrowRight size={15} />
                   </button>
                 ))}
               </div>
             )}
 
-            {!loading && nextPrompts.length > 0 && <div className="ai-quick-prompts">{nextPrompts.map(prompt => <button type="button" key={prompt} onClick={() => sendMessage(prompt)}>{prompt}</button>)}</div>}
+            {!loading && nextPrompts.length > 0 && (
+              <div className="ai-quick-prompts">
+                {nextPrompts.map(prompt => <button type="button" key={prompt} onClick={() => void sendMessage(prompt)}>{prompt}</button>)}
+              </div>
+            )}
 
             {showHandoff && (
               <form className="ai-handoff" onSubmit={submitHandoff}>
-                <div><Sparkles size={17} /><span><strong>Have Waylume price this trip</strong><small>Your conversation becomes a structured advisor brief. Final supplier pricing and booking still require confirmation.</small></span></div>
-                <label>Name<input required value={contact.name} onChange={event => setContact(current => ({ ...current, name: event.target.value }))} placeholder="Your name" /></label>
-                <label>Email<input required type="email" value={contact.email} onChange={event => setContact(current => ({ ...current, email: event.target.value }))} placeholder="you@example.com" /></label>
+                <div>
+                  <Sparkles size={17} />
+                  <span>
+                    <strong>Have Waylume price this trip</strong>
+                    <small>Your conversation becomes a structured advisor brief. Final supplier pricing and booking still require confirmation.</small>
+                  </span>
+                </div>
+                <label>Name<input required maxLength={120} value={contact.name} onChange={event => setContact(current => ({ ...current, name: event.target.value }))} placeholder="Your name" /></label>
+                <label>Email<input required maxLength={180} type="email" value={contact.email} onChange={event => setContact(current => ({ ...current, email: event.target.value }))} placeholder="you@example.com" /></label>
                 <button className="button" disabled={handoffStatus === "loading"}>{handoffStatus === "loading" ? <Loader2 className="ai-spin" size={17} /> : <Send size={16} />} Send planning brief</button>
                 {handoffMessage && <p className={handoffStatus === "success" ? "ai-handoff-success" : "ai-handoff-error"}>{handoffMessage}</p>}
               </form>
@@ -253,7 +320,20 @@ export default function AiConcierge({ mode = "floating" }: Props) {
               </button>
             )}
             <form className="ai-composer" onSubmit={event => { event.preventDefault(); void sendMessage(); }}>
-              <textarea value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(); } }} maxLength={1200} rows={1} placeholder="Ask Waylume anything about your trip…" />
+              <textarea
+                value={input}
+                onChange={event => setInput(event.target.value)}
+                onKeyDown={event => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    void sendMessage();
+                  }
+                }}
+                maxLength={1200}
+                rows={1}
+                aria-label="Ask Waylume AI about your trip"
+                placeholder="Ask Waylume anything about your trip…"
+              />
               <button type="submit" disabled={!input.trim() || loading} aria-label="Send message"><Send size={18} /></button>
             </form>
             <small className="ai-disclaimer">Planning guidance only. Live supplier pricing, availability, terms, and bookings require confirmation.</small>
@@ -266,15 +346,37 @@ export default function AiConcierge({ mode = "floating" }: Props) {
             <h2>Your trip takes shape as you chat.</h2>
             <p>Waylume AI keeps the important details organized so you can refine the same trip naturally instead of restarting a search.</p>
             <div className="ai-brief-grid">
-              {briefItems.map(({ icon: Icon, label, value }) => <article className={value ? "filled" : ""} key={label}><Icon size={18} /><span><small>{label}</small><strong>{value || "Not set yet"}</strong></span></article>)}
+              {briefItems.map(({ icon: Icon, label, value }) => (
+                <article className={value ? "filled" : ""} key={label}>
+                  <Icon size={18} />
+                  <span><small>{label}</small><strong>{value || "Not set yet"}</strong></span>
+                </article>
+              ))}
             </div>
             {(profile.tripType || profile.pace || profile.lodging || profile.interests?.length) && (
-              <div className="ai-preference-card"><small>Trip preferences</small>{profile.tripType && <span>{profile.tripType}</span>}{profile.pace && <span>{profile.pace} pace</span>}{profile.lodging && <span>{profile.lodging}</span>}{profile.interests?.map(item => <span key={item}>{item}</span>)}</div>
+              <div className="ai-preference-card">
+                <small>Trip preferences</small>
+                {profile.tripType && <span>{profile.tripType}</span>}
+                {profile.pace && <span>{profile.pace} pace</span>}
+                {profile.lodging && <span>{profile.lodging}</span>}
+                {profile.interests?.map(item => <span key={item}>{item}</span>)}
+              </div>
             )}
             {itineraryPreview.length > 0 && (
-              <div className="ai-itinerary-preview"><small>AI itinerary preview</small>{itineraryPreview.map(day => <article key={day.day}><b>{day.day}</b><span><strong>{day.title}</strong><small>{day.details}</small></span></article>)}</div>
+              <div className="ai-itinerary-preview">
+                <small>AI itinerary preview</small>
+                {itineraryPreview.map(day => (
+                  <article key={day.day}>
+                    <b>{day.day}</b>
+                    <span><strong>{day.title}</strong><small>{day.details}</small></span>
+                  </article>
+                ))}
+              </div>
             )}
-            <div className="ai-human-card"><MessageCircle size={20} /><div><strong>AI discovery. Human follow-through.</strong><p>When the brief is ready, Waylume moves it into the advisor workflow for actual supplier research and booking support.</p></div></div>
+            <div className="ai-human-card">
+              <MessageCircle size={20} />
+              <div><strong>AI discovery. Human follow-through.</strong><p>When the brief is ready, Waylume moves it into the advisor workflow for actual supplier research and booking support.</p></div>
+            </div>
           </aside>
         )}
       </div>
@@ -282,5 +384,15 @@ export default function AiConcierge({ mode = "floating" }: Props) {
   );
 
   if (mode === "full") return content;
-  return <>{!open && <button className="ai-launcher" type="button" onClick={() => setOpen(true)}><span><Sparkles size={19} /></span><b>Ask Waylume AI</b><small>Plan a trip</small></button>}{open && <div className="ai-floating-wrap">{content}</div>}</>;
+
+  return (
+    <>
+      {!open && (
+        <button className="ai-launcher" type="button" onClick={openFloating}>
+          <span><Sparkles size={19} /></span><b>Ask Waylume AI</b><small>Plan a trip</small>
+        </button>
+      )}
+      {open && <div className="ai-floating-wrap">{content}</div>}
+    </>
+  );
 }
