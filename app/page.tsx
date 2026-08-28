@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, Compass, Plane, Ship, Sparkles, Waves } from "lucide-react";
+import WaylumeLogo from "@/components/WaylumeLogo";
 
 type FormState = {
   name: string;
@@ -55,7 +56,7 @@ export default function Home() {
     <main>
       <header className="nav shell">
         <a href="#top" className="brand" aria-label="Waylume Travel home">
-          <img src="/waylume-mark.svg" alt="" className="brand-mark" />
+          <WaylumeLogo cropMark className="brand-mark" alt="Waylume Travel" />
           <span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span>
         </a>
         <nav>
@@ -74,7 +75,7 @@ export default function Home() {
             <div className="trust"><span><Check/>Personalized planning</span><span><Check/>Supplier-backed options</span><span><Check/>Human advisor support</span></div>
           </div>
           <div className="hero-card">
-            <div className="orb"><img src="/waylume-mark.svg" alt="Waylume Travel compass, air and ocean mark" /></div>
+            <div className="orb"><WaylumeLogo cropMark alt="Waylume Travel compass, air and ocean mark" /></div>
             <div className="floating one">✈ Flights + stays</div><div className="floating two">✦ Curated escapes</div><div className="floating three">⚓ Cruise ideas</div>
           </div>
         </div>
@@ -111,7 +112,7 @@ export default function Home() {
         </form>
       </section>
 
-      <footer><div className="shell footer"><div className="brand"><img src="/waylume-mark.svg" alt="" className="brand-mark"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span></div><p>Personalized travel discovery, planning support, and vacation inspiration. <a href="/destinations">Destinations</a> · <a href="/deals">Promotions</a> · <a href="/smart-planner">Smart Planner</a></p><small>© {new Date().getFullYear()} Waylume Travel. All rights reserved.</small></div></footer>
+      <footer><div className="shell footer"><div className="brand"><WaylumeLogo cropMark className="brand-mark" alt="Waylume Travel"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span></div><p>Personalized travel discovery, planning support, and vacation inspiration. <a href="/destinations">Destinations</a> · <a href="/deals">Promotions</a> · <a href="/smart-planner">Smart Planner</a></p><small>© {new Date().getFullYear()} Waylume Travel. All rights reserved.</small></div></footer>
     </main>
   );
 }
