@@ -17,11 +17,11 @@ export default function ConciergePage() {
             <Link href="/" className="back-link"><ArrowLeft size={15} /> Waylume Travel</Link>
             <span className="eyebrow"><Sparkles size={16} /> AI trip discovery</span>
             <h1>Explore the possibilities. Build the brief. Let your advisor research the rest.</h1>
-            <p className="lead">Talk through the trip the way you would with a person. Waylume AI can help you explore destinations, hotel and resort styles, flight approaches, cruises, and experiences while keeping your trip parameters organized for advisor research.</p>
+            <p className="lead">Talk through the trip the way you would with a person. Waylume AI helps you explore destinations, hotel and resort styles, flight approaches, cruises, and experiences while keeping the trip parameters organized for advisor research.</p>
           </div>
           <div className="concierge-trust-card">
             <ShieldCheck size={22} />
-            <div><strong>No AI-generated fares or fake availability</strong><p>The AI is for discovery and trip design. A Waylume advisor manually researches current supplier availability, final pricing, terms, and booking choices after receiving your trip brief.</p></div>
+            <div><strong>Ideas first. Supplier-confirmed details second.</strong><p>Waylume AI does not generate fares or claim live inventory. Your advisor manually researches current supplier availability, final pricing, terms, and booking choices after receiving your trip brief.</p></div>
           </div>
         </div>
       </section>
