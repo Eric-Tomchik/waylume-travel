@@ -1,0 +1,4 @@
+.orb{position:relative;overflow:hidden;isolation:isolate}
+.orb>img{width:92%;height:92%;object-fit:contain;position:relative;z-index:2;clip-path:circle(49% at 50% 50%);mix-blend-mode:multiply;filter:drop-shadow(0 18px 24px rgba(4,60,85,.12));transform:scale(1.02)}
+.orb:after{z-index:3;pointer-events:none}
+@media(max-width:620px){.orb>img{width:94%;height:94%;transform:scale(1.01)}}
