@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
 import { getConvexServerClient, analyticsTrack } from "@/lib/convexServer";
 
-const allowedEvents = new Set(["page_view", "planner_started", "planner_match", "trip_request_started", "trip_request_submitted", "portal_opened", "quote_viewed", "itinerary_viewed"]);
+const allowedEvents = new Set([
+  "page_view",
+  "planner_started",
+  "planner_match",
+  "trip_request_started",
+  "trip_request_submitted",
+  "portal_opened",
+  "quote_viewed",
+  "itinerary_viewed",
+  "ai_concierge_opened",
+  "ai_message_sent",
+  "ai_advisor_handoff",
+]);
 
 export async function POST(request: Request) {
   try {
