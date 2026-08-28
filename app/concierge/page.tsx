@@ -5,7 +5,7 @@ import AiConcierge from "@/components/AiConcierge";
 
 export const metadata: Metadata = {
   title: "AI Travel Concierge",
-  description: "Plan a trip conversationally with Waylume AI, then hand the finished brief to a real travel advisor for supplier research and booking support.",
+  description: "Explore trip possibilities conversationally with Waylume AI, then send the completed brief to a real travel advisor for current supplier research and final pricing.",
 };
 
 export default function ConciergePage() {
@@ -15,13 +15,13 @@ export default function ConciergePage() {
         <div className="shell concierge-intro-inner">
           <div>
             <Link href="/" className="back-link"><ArrowLeft size={15} /> Waylume Travel</Link>
-            <span className="eyebrow"><Sparkles size={16} /> AI travel concierge</span>
-            <h1>Plan naturally. Refine instantly. Hand it to a real advisor.</h1>
-            <p className="lead">Describe the trip the way you would explain it to a person. Waylume AI keeps the details together, asks the next useful question, and builds a planning brief as the conversation evolves.</p>
+            <span className="eyebrow"><Sparkles size={16} /> AI trip discovery</span>
+            <h1>Explore the possibilities. Build the brief. Let your advisor research the rest.</h1>
+            <p className="lead">Talk through the trip the way you would with a person. Waylume AI helps you explore destinations, hotel and resort styles, flight approaches, cruises, and experiences while keeping the trip parameters organized for advisor research.</p>
           </div>
           <div className="concierge-trust-card">
             <ShieldCheck size={22} />
-            <div><strong>Built for advisor-backed travel</strong><p>The AI helps with discovery and planning. Final supplier availability, pricing, payment, and bookings still go through Waylume and applicable travel suppliers.</p></div>
+            <div><strong>Ideas first. Supplier-confirmed details second.</strong><p>Waylume AI does not generate fares or claim live inventory. Your advisor manually researches current supplier availability, final pricing, terms, and booking choices after receiving your trip brief.</p></div>
           </div>
         </div>
       </section>

@@ -143,66 +143,114 @@ function inferProfile(profile: TripProfile, message: string): TripProfile {
 }
 
 function preview(profile: TripProfile): PreviewDay[] {
-  if (!profile.destination || !profile.dates || !profile.travelers || !profile.budget) return [];
+  if (!profile.destination || !profile.dates || !profile.travelers) return [];
   const pace = profile.pace ?? "balanced";
   return [
-    { day: 1, title: `Arrive + settle into ${profile.destination}`, details: `Easy arrival, check-in, and a ${pace} first evening with room for supplier-confirmed timing.` },
-    { day: 2, title: "Signature experience", details: `Anchor the trip around ${profile.interests?.[0] ?? "a destination-defining experience"}, then keep the rest flexible.` },
-    { day: 3, title: "Explore your way", details: `Blend ${profile.interests?.[1] ?? "local discovery"} with downtime, dining, or resort time based on your preferences.` },
+    {
+      day: 1,
+      title: `Arrival + settle into ${profile.destination}`,
+      details: `A possible ${pace} arrival day with lodging and timing to be researched and confirmed by your advisor.`,
+    },
+    {
+      day: 2,
+      title: "Signature experience",
+      details: `A possible anchor around ${profile.interests?.[0] ?? "a destination-defining experience"}, with specific operators researched later.`,
+    },
+    {
+      day: 3,
+      title: "Explore your way",
+      details: `Blend ${profile.interests?.[1] ?? "local discovery"} with downtime, dining, resort time, or another experience that fits your preferences.`,
+    },
   ];
 }
 
 function fallbackResult(profile: TripProfile, messages: ChatMessage[]): ConciergeResult {
   const inferred = inferProfile(profile, messages.at(-1)?.content ?? "");
-  if (!inferred.destination) return {
-    reply: inferred.tripType === "Cruise"
-      ? "Absolutely. What kind of cruise sounds right—Caribbean beaches, Alaska scenery, Europe, a river cruise, or are you open to ideas?"
-      : "Tell me the trip you have in mind in your own words. A destination is great, but you can also say “warm beach in November,” “romantic long weekend,” or “family cruise.” I’ll shape it with you one question at a time.",
+
+  if (!inferred.destination) {
+    const cruise = inferred.tripType === "Cruise";
+    return {
+      reply: cruise
+        ? "Absolutely. What kind of cruise sounds right—Caribbean beaches, Alaska scenery, Europe, a river cruise, or are you open to ideas? I can help narrow the style and itinerary before your advisor researches current sailings."
+        : "Tell me the trip you have in mind in your own words. I can help explore destinations, hotel or resort styles, flight approaches, cruises, and experiences, then organize the details for advisor research.",
+      profile: inferred,
+      recommendations: cruise ? [
+        { title: "Cruise possibility", subtitle: "Caribbean", why: "A strong direction for beaches, resort-style ships, and multiple island stops.", kind: "cruise" },
+        { title: "Cruise possibility", subtitle: "Alaska", why: "A strong direction for scenery, wildlife, and destination-focused days ashore.", kind: "cruise" },
+        { title: "Cruise possibility", subtitle: "Mediterranean", why: "Useful when you want several historic destinations within one trip structure.", kind: "cruise" },
+      ] : [
+        { title: "Destination possibility", subtitle: "Puerto Rico", why: "Beach time, culture, dining, and several trip styles in one destination.", kind: "destination" },
+        { title: "Resort possibility", subtitle: "Cancún & Riviera Maya", why: "A strong direction for all-inclusive stays and resort-centered vacations.", kind: "destination" },
+        { title: "City possibility", subtitle: "Las Vegas", why: "A compact direction for dining, shows, nightlife, and shorter getaways.", kind: "destination" },
+      ],
+      itineraryPreview: [],
+      nextPrompts: cruise
+        ? ["Caribbean cruise", "Alaska cruise", "Mediterranean cruise", "River cruise"]
+        : ["Warm beach getaway", "Help me choose a cruise", "Romantic weekend", "Family vacation"],
+      readyForAdvisor: false,
+      source: "demo",
+    };
+  }
+
+  if (!inferred.dates) return {
+    reply: `${inferred.destination} is a strong direction. What travel window are you considering? Exact dates, a month, a long weekend, or “flexible” all work.`,
     profile: inferred,
-    recommendations: inferred.tripType === "Cruise" ? [
-      { title: "Warm-weather sailing", subtitle: "Caribbean cruise", why: "Easy starting point for beaches, resort-style ships, and multiple island stops.", kind: "cruise" },
-      { title: "Scenic journey", subtitle: "Alaska cruise", why: "Strong fit for scenery, wildlife, and destination-focused days ashore.", kind: "cruise" },
-      { title: "Culture + variety", subtitle: "Mediterranean cruise", why: "Useful when you want several historic destinations in one trip.", kind: "cruise" },
-    ] : [
-      { title: "Warm + flexible", subtitle: "Puerto Rico", why: "Beach time, culture, dining, and several trip styles in one destination.", kind: "destination" },
-      { title: "Resort reset", subtitle: "Cancún & Riviera Maya", why: "Strong for all-inclusive stays and a simple resort-centered vacation.", kind: "destination" },
-      { title: "Entertainment", subtitle: "Las Vegas", why: "Compact option for dining, shows, nightlife, and short getaways.", kind: "destination" },
-    ],
+    recommendations: [],
     itineraryPreview: [],
-    nextPrompts: inferred.tripType === "Cruise" ? ["Caribbean cruise", "Alaska cruise", "Mediterranean cruise", "River cruise"] : ["Warm beach getaway", "Help me choose a cruise", "Romantic weekend", "Family vacation"],
+    nextPrompts: ["My dates are flexible", "A long weekend", "About 5 nights", "Sometime in November"],
     readyForAdvisor: false,
     source: "demo",
   };
-  if (!inferred.dates) return {
-    reply: `${inferred.destination} is a strong start. What travel window are you considering? Exact dates, a month, a long weekend, or “flexible” all work.`,
-    profile: inferred, recommendations: [], itineraryPreview: [],
-    nextPrompts: ["My dates are flexible", "A long weekend", "About 5 nights", "Sometime in November"],
-    readyForAdvisor: false, source: "demo",
-  };
+
   if (!inferred.travelers) return {
-    reply: `How many people are traveling to ${inferred.destination}? I’ll use that to shape lodging, pace, and the advisor brief.`,
-    profile: inferred, recommendations: [], itineraryPreview: [],
+    reply: `How many people are traveling? I’ll use that to shape the kinds of lodging, flight, cruise, and experience options worth researching for ${inferred.destination}.`,
+    profile: inferred,
+    recommendations: [],
+    itineraryPreview: [],
     nextPrompts: ["2 travelers", "Family of 4", "Solo trip", "Group of 6"],
-    readyForAdvisor: false, source: "demo",
-  };
-  if (!inferred.budget) return {
-    reply: `I have ${inferred.destination}, ${inferred.dates}, and ${inferred.travelers} traveler${inferred.travelers === 1 ? "" : "s"}. Should I optimize around value, comfortable mid-range, premium, or a rough total budget?`,
-    profile: inferred, recommendations: [], itineraryPreview: [],
-    nextPrompts: ["Value-focused", "Comfortable mid-range", "Premium", "Around $3,000 total"],
-    readyForAdvisor: false, source: "demo",
+    readyForAdvisor: false,
+    source: "demo",
   };
 
-  const interestText = inferred.interests?.length ? inferred.interests.join(", ") : "a balanced mix of highlights and downtime";
+  if (!inferred.budget) return {
+    reply: `I have ${inferred.destination}, ${inferred.dates}, and ${inferred.travelers} traveler${inferred.travelers === 1 ? "" : "s"}. What comfort level should I plan around—value-focused, comfortable mid-range, premium, or a rough total budget? I’ll use it only as guidance for the kinds of options to explore.`,
+    profile: inferred,
+    recommendations: [],
+    itineraryPreview: [],
+    nextPrompts: ["Value-focused", "Comfortable mid-range", "Premium", "Around $3,000 total"],
+    readyForAdvisor: false,
+    source: "demo",
+  };
+
+  const interestText = inferred.interests?.length
+    ? inferred.interests.join(", ")
+    : "a balanced mix of highlights and downtime";
+
   return {
-    reply: `Your trip is taking shape. I’d frame ${inferred.destination} as a ${inferred.pace ?? "balanced"} ${inferred.tripType ?? "vacation"} for ${inferred.travelers} traveler${inferred.travelers === 1 ? "" : "s"}, centered on ${interestText}. Keep refining it here, or send the brief to Waylume for real supplier research and pricing.`,
+    reply: `This gives Waylume a useful planning brief: ${inferred.destination}, ${inferred.dates}, ${inferred.travelers} traveler${inferred.travelers === 1 ? "" : "s"}, with ${interestText}. I can keep exploring hotel, flight, cruise, and experience possibilities, or you can send the brief to your advisor for current supplier research.`,
     profile: inferred,
     recommendations: [
-      { title: "Stay direction", subtitle: inferred.lodging ?? "Advisor-selected area", why: `Prioritize location and amenities that fit a ${inferred.pace ?? "balanced"} pace and ${inferred.budget} budget.`, kind: "stay" },
-      { title: "Trip anchor", subtitle: "Signature experience", why: `Build one memorable day around ${inferred.interests?.[0] ?? "the strongest local experience"}.`, kind: "experience" },
-      { title: "Real options", subtitle: "Waylume supplier research", why: "Your advisor can use this brief to compare current supplier availability, terms, and pricing before anything is booked.", kind: inferred.tripType === "Cruise" ? "cruise" : "flight" },
+      {
+        title: "Stay possibility",
+        subtitle: inferred.lodging ?? "Area and property style",
+        why: `Explore lodging that fits a ${inferred.pace ?? "balanced"} pace and ${inferred.budget} comfort level. Specific properties are researched after handoff.`,
+        kind: "stay",
+      },
+      {
+        title: "Experience possibility",
+        subtitle: "Signature day",
+        why: `Build one memorable day around ${inferred.interests?.[0] ?? "the strongest local experience"}, then keep the rest flexible.`,
+        kind: "experience",
+      },
+      {
+        title: "Advisor research",
+        subtitle: inferred.tripType === "Cruise" ? "Cruise options" : "Transportation + stay options",
+        why: "Your Waylume advisor can use the finished brief to manually research current supplier availability, final pricing, terms, and booking choices.",
+        kind: inferred.tripType === "Cruise" ? "cruise" : "flight",
+      },
     ],
     itineraryPreview: preview(inferred),
-    nextPrompts: ["Make it more relaxing", "Add nightlife", "Focus on food", "Upgrade the hotel"],
+    nextPrompts: ["Show hotel possibilities", "Explore flight options", "What cruises fit?", "Add more experiences"],
     readyForAdvisor: true,
     source: "demo",
   };
@@ -238,7 +286,9 @@ function schema() {
           type: "object",
           additionalProperties: false,
           properties: {
-            title: { type: "string" }, subtitle: { type: "string" }, why: { type: "string" },
+            title: { type: "string" },
+            subtitle: { type: "string" },
+            why: { type: "string" },
             kind: { type: "string", enum: ["destination", "stay", "experience", "flight", "cruise"] },
           },
           required: ["title", "subtitle", "why", "kind"],
@@ -250,7 +300,11 @@ function schema() {
         items: {
           type: "object",
           additionalProperties: false,
-          properties: { day: { type: "integer" }, title: { type: "string" }, details: { type: "string" } },
+          properties: {
+            day: { type: "integer" },
+            title: { type: "string" },
+            details: { type: "string" },
+          },
           required: ["day", "title", "details"],
         },
       },
@@ -280,20 +334,28 @@ async function callOpenAI(profile: TripProfile, messages: ChatMessage[], pageCon
 
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       model: process.env.WAYLUME_AI_MODEL || "gpt-5.6-luna",
       store: false,
       reasoning: { effort: "none" },
       max_output_tokens: 1100,
       instructions: [
-        "You are Waylume AI, a warm, concise travel-planning concierge for Waylume Travel, an Independent Agent of Archer.",
-        "Make the experience conversational like a skilled travel advisor: ask only the single most useful next question, preserve prior facts, and let the traveler refine naturally without restarting.",
-        "Extract and preserve trip facts in profile. Never invent dates, budget, traveler count, origin, live prices, availability, private rates, guaranteed savings, reservations, or bookings.",
-        "You may recommend destinations, trip structures, neighborhoods, experience categories, lodging styles, cruise directions, and planning tradeoffs.",
-        "When enough information exists, include a short itineraryPreview and set readyForAdvisor true.",
-        "Final flights, hotels, cruises, packages, prices, availability, payment, and booking terms require Waylume advisor/supplier confirmation.",
-        "Keep reply under 120 words and nextPrompts very short.",
+        "You are Waylume AI, a concise travel-discovery assistant for Waylume Travel, an Independent Agent of Archer.",
+        "Your job is to help a traveler understand what a trip could include and collect a useful planning brief for a human advisor.",
+        "Ask only the single most useful next question and preserve prior facts so the traveler can refine the same trip naturally.",
+        "You may suggest destinations, known hotel or resort styles, transportation approaches, airlines as examples, cruise regions or cruise lines as examples, neighborhoods, experiences, and itinerary structures.",
+        "Treat all named hotels, resorts, airlines, cruises, sailings, and experiences as possibilities to research, not confirmed inventory or supplier access.",
+        "Never output, estimate, calculate, compare, or imply airfare, hotel rates, cruise fares, package prices, discounts, live prices, or savings.",
+        "Never claim that a room, flight, sailing, package, fare, or activity is currently available, bookable, held, reserved, or confirmed.",
+        "A user's budget is planning guidance only; use it to describe value, mid-range, premium, or luxury directions without generating prices.",
+        "If asked for price or current availability, explain briefly that a Waylume advisor manually researches current supplier availability and final pricing after receiving the trip brief.",
+        "When enough trip parameters exist for human research, set readyForAdvisor true and include a short itineraryPreview framed as a possible trip shape.",
+        "Final supplier availability, pricing, terms, payment, and booking are researched and confirmed by the Waylume advisor through applicable travel suppliers.",
+        "Keep reply under 120 words and nextPrompts short.",
       ].join(" "),
       input: [{
         role: "user",
@@ -304,7 +366,12 @@ async function callOpenAI(profile: TripProfile, messages: ChatMessage[], pageCon
       }],
       text: {
         verbosity: "low",
-        format: { type: "json_schema", name: "waylume_concierge", strict: true, schema: schema() },
+        format: {
+          type: "json_schema",
+          name: "waylume_concierge",
+          strict: true,
+          schema: schema(),
+        },
       },
     }),
     signal: AbortSignal.timeout(20000),
@@ -314,6 +381,7 @@ async function callOpenAI(profile: TripProfile, messages: ChatMessage[], pageCon
   const raw = await response.json().catch(() => null);
   const text = extractOutputText(raw);
   if (!text) return null;
+
   const parsed = JSON.parse(text);
   const normalized = normalizeProfile(parsed.profile);
   const kinds = ["destination", "stay", "experience", "flight", "cruise"];
@@ -326,7 +394,9 @@ async function callOpenAI(profile: TripProfile, messages: ChatMessage[], pageCon
           title: clean(item?.title, 80),
           subtitle: clean(item?.subtitle, 120),
           why: clean(item?.why, 320),
-          kind: kinds.includes(String(item?.kind)) ? String(item.kind) as Recommendation["kind"] : "experience",
+          kind: kinds.includes(String(item?.kind))
+            ? String(item.kind) as Recommendation["kind"]
+            : "experience",
         }))
       : [],
     itineraryPreview: Array.isArray(parsed.itineraryPreview)
@@ -346,7 +416,9 @@ async function callOpenAI(profile: TripProfile, messages: ChatMessage[], pageCon
 
 export async function POST(request: Request) {
   const contentLength = Number(request.headers.get("content-length") || 0);
-  if (contentLength > 32768) return NextResponse.json({ error: "Request too large" }, { status: 413 });
+  if (contentLength > 32768) {
+    return NextResponse.json({ error: "Request too large" }, { status: 413 });
+  }
 
   const rate = allowRequest(`ai:${requestFingerprint(request)}`, 30, 10 * 60 * 1000);
   if (!rate.allowed) {
@@ -361,13 +433,15 @@ export async function POST(request: Request) {
     const messages = normalizeMessages(body?.messages);
     const profile = normalizeProfile(body?.profile);
     const pageContext = clean(body?.pageContext, 120);
-    if (!messages.length) return NextResponse.json({ error: "A message is required" }, { status: 400 });
+    if (!messages.length) {
+      return NextResponse.json({ error: "A message is required" }, { status: 400 });
+    }
 
     try {
       const ai = await callOpenAI(profile, messages, pageContext);
       if (ai?.reply) return NextResponse.json(ai);
     } catch {
-      // Demo engine intentionally takes over when the configured AI provider is unavailable.
+      // The deterministic discovery engine takes over when the AI provider is unavailable.
     }
 
     return NextResponse.json(fallbackResult(profile, messages));

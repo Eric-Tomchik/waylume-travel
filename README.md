@@ -2,7 +2,7 @@
 
 **Waylume Travel — Independent Agent of Archer** is an advisor-backed travel discovery and planning platform built with Next.js, TypeScript, Convex, and an optional OpenAI conversational layer.
 
-The product is intentionally designed around **AI discovery + human follow-through**. Travelers can explore and shape a trip with Waylume AI, then send the resulting brief into the advisor workflow for current supplier research, pricing, availability, terms, and booking support.
+The product is intentionally designed around **AI discovery + human supplier research**. Travelers use Waylume AI to explore what a trip could include, refine their preferences, and create a structured brief. The Waylume advisor then manually researches current supplier availability, final pricing, terms, and booking choices through the applicable Archer / Evolution Travel workflow.
 
 ## Current capabilities
 
@@ -13,10 +13,11 @@ The product is intentionally designed around **AI discovery + human follow-throu
 - Guided Smart Planner
 - Conversational **Waylume AI** concierge
 - Floating AI concierge across public pages
-- Full `/concierge` planning workspace
+- Full `/concierge` discovery workspace
 - Session-persistent conversation and trip brief
-- AI-generated recommendation cards and itinerary previews
-- Direct **Have Waylume price this trip** handoff into the existing lead pipeline
+- AI-assisted possibility cards for destinations, stays, flights, cruises, and experiences
+- Possible-itinerary previews that help visualize trip structure
+- Direct **Research my options with Waylume** handoff into the existing lead pipeline
 - Public trip-request form
 - Passwordless traveler portal
 - Quote review and accept/decline preference workflow
@@ -62,7 +63,7 @@ Core application:
 - `CONVEX_SITE_URL` — Convex HTTP Actions endpoint.
 - `WAYLUME_ADMIN_TOKEN` — strong advisor/backend secret; set in both the web host and Convex where required.
 - `WAYLUME_ADMIN_SESSION_SECRET` — separate strong secret used to sign advisor sessions.
-- `WAYLUME_INTAKE_SECRET` — shared web-host/Convex secret protecting the public intake handoff.
+- `WAYLUME_INTAKE_SECRET` — shared web-host/Convex secret protecting the public intake handoff and analytics ingestion.
 - `WAYLUME_SITE_ORIGIN` — optional exact public HTTPS origin used for origin checks.
 
 Waylume AI:
@@ -90,20 +91,47 @@ Floating concierge or /concierge
   ↓
 /api/ai/concierge
   ├─ OPENAI_API_KEY configured → OpenAI Responses API + structured output
-  └─ no key/provider failure → deterministic Waylume demo engine
+  └─ no key/provider failure → deterministic Waylume discovery engine
   ↓
-Live trip profile + recommendations + itinerary preview
+Trip parameters + planning possibilities + possible itinerary shape
   ↓
-Have Waylume price this trip
+Research my options with Waylume
   ↓
 /api/trip-request
   ↓
 Convex travelRequests
   ↓
-Advisor workspace + supplier research
+Advisor workspace
+  ↓
+Manual Archer / Evolution supplier research
+  ↓
+Current supplier options + final pricing + terms presented to client
 ```
 
-The AI is deliberately prevented from representing planning ideas as live supplier inventory. It may organize preferences, recommend directions, and draft itinerary ideas, but final flights, hotels, cruises, packages, availability, prices, payment terms, and bookings require advisor/supplier confirmation.
+## Public AI boundaries
+
+Waylume AI is **not a pricing, inventory, or booking engine**.
+
+It may help the client explore:
+
+- destinations and neighborhoods;
+- hotel and resort styles;
+- example properties or brands to research;
+- flight and routing approaches;
+- example airlines to research;
+- cruise regions, cruise styles, and example cruise lines;
+- activities, excursions, dining, and itinerary ideas.
+
+It must not:
+
+- generate or estimate airfare, hotel rates, cruise fares, package prices, discounts, or savings;
+- claim live or confirmed availability;
+- imply that any named property, flight, sailing, supplier, or travel product is currently bookable through Waylume;
+- claim that a reservation, hold, payment, or booking has occurred.
+
+A client budget can be collected as planning guidance so the AI can distinguish value-focused, mid-range, premium, and luxury directions. It is not used to generate a quote.
+
+Final supplier availability, final pricing, payment requirements, booking terms, and confirmations are handled manually by the advisor through the applicable supplier workflow.
 
 ## AI privacy and guardrails
 
@@ -121,7 +149,8 @@ The AI is deliberately prevented from representing planning ideas as live suppli
 3. Deploy the Next.js application to Vercel or Cloudflare Workers.
 4. Add `OPENAI_API_KEY` only when you want the concierge to use the live AI provider; the demo engine works without it.
 5. Set `WAYLUME_SITE_ORIGIN` to the final HTTPS origin when the production domain is assigned.
-6. Test the complete path: concierge → advisor handoff → `/admin` → quote/itinerary → traveler portal.
+6. Test the complete path: concierge → advisor handoff → `/admin` → manual supplier research → quote/itinerary → traveler portal.
+7. Specifically test price and availability questions to verify that the AI routes those requests to advisor research instead of inventing supplier facts.
 
 ### Cloudflare Workers
 
@@ -147,4 +176,4 @@ npm run cf:deploy
 
 ## Product direction
 
-Waylume is not intended to be an autonomous travel agency. Its differentiator is a modern conversational planning interface that produces an unusually complete, structured brief for a real travel advisor. Supplier integrations can progressively add richer live inventory later without changing that advisor-backed operating model.
+Waylume is not intended to be an autonomous travel agency or a public fare engine. Its differentiator is a modern conversational discovery interface that creates an unusually complete, structured brief for a real travel advisor. The public site helps the client visualize what is possible; the advisor performs the actual supplier research needed to determine what is currently available and at what final price.
