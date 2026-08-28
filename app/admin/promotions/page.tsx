@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { hasAdminSession } from "@/lib/adminClient";
 
 type Promotion = {
   _id?: string;
@@ -19,31 +20,40 @@ const emptyPromotion: Promotion = { title: "", description: "", destination: "",
 export default function PromotionsAdminPage() {
   const [token, setToken] = useState("");
   const [authorized, setAuthorized] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [form, setForm] = useState<Promotion>(emptyPromotion);
   const [message, setMessage] = useState("");
 
+  function authHeaders(json = false) {
+    return { ...(json ? { "Content-Type": "application/json" } : {}), ...(token ? { "x-admin-token": token } : {}) };
+  }
+
   async function load(e?: FormEvent) {
     e?.preventDefault();
     setMessage("");
-    const response = await fetch("/api/admin/promotions", { headers: { "x-admin-token": token }, cache: "no-store" });
+    const response = await fetch("/api/admin/promotions", { headers: authHeaders(), cache: "no-store" });
     if (!response.ok) { setAuthorized(false); return setMessage("Unable to open promotions manager."); }
     const data = await response.json();
     setAuthorized(true);
     setPromotions(data.promotions ?? []);
   }
 
+  useEffect(() => {
+    hasAdminSession().then(async ok => { if (ok) await load(); setChecking(false); });
+  }, []);
+
   async function save(e: FormEvent) {
     e.preventDefault();
     const response = await fetch("/api/admin/promotions", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-admin-token": token },
+      headers: authHeaders(true),
       body: JSON.stringify(form),
     });
     if (!response.ok) return setMessage("Unable to save promotion.");
-    setMessage("Promotion saved.");
     setForm(emptyPromotion);
     await load();
+    setMessage("Promotion saved.");
   }
 
   function edit(promo: Promotion) {
@@ -55,9 +65,10 @@ export default function PromotionsAdminPage() {
     <main className="admin-shell">
       <div className="shell">
         <div className="admin-header"><div><Link href="/admin" className="back-link">← Trip inquiries</Link><span className="eyebrow">Advisor content</span><h1>Promotions manager</h1></div><Link href="/deals" className="button small">View public promotions</Link></div>
-        {!authorized && (
+        {checking && <div className="admin-login"><h2>Checking advisor session…</h2></div>}
+        {!checking && !authorized && (
           <form className="admin-login" onSubmit={load}>
-            <h2>Advisor access</h2><input type="password" value={token} onChange={e=>setToken(e.target.value)} placeholder="Admin passcode" required/><button className="button">Open manager</button>{message && <p className="error">{message}</p>}
+            <h2>Advisor access</h2><Link className="button" href="/admin/login">Secure sign in</Link><input type="password" value={token} onChange={e=>setToken(e.target.value)} placeholder="Legacy admin passcode"/><button className="ghost">Open with passcode</button>{message && <p className="error">{message}</p>}
           </form>
         )}
         {authorized && <>
