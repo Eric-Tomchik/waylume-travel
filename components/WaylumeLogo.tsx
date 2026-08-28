@@ -8,38 +8,38 @@ type Props = {
   cropMark?: boolean;
 };
 
-export default function WaylumeLogo({ className = "", alt = "Waylume Travel", cropMark = false }: Props) {
+const MARK_CHUNKS = Array.from({ length: 15 }, (_, index) =>
+  `/brand/mark-${String(index).padStart(2, "0")}.b64`,
+);
+
+export default function WaylumeLogo({ className = "", alt = "Waylume Travel" }: Props) {
   const [src, setSrc] = useState("");
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/waylume-logo.webp", { cache: "force-cache" })
-      .then(response => response.text())
-      .then(encoded => {
-        const value = encoded.trim();
-        if (!cancelled && value.startsWith("UklGR")) {
-          setSrc(`data:image/webp;base64,${value}`);
+
+    Promise.all(
+      MARK_CHUNKS.map(async path => {
+        const response = await fetch(path, { cache: "force-cache" });
+        if (!response.ok) throw new Error(`Unable to load ${path}`);
+        return (await response.text()).trim();
+      }),
+    )
+      .then(parts => {
+        const encoded = parts.join("");
+        if (!cancelled && encoded.startsWith("UklGR") && encoded.length > 20000) {
+          setSrc(`data:image/webp;base64,${encoded}`);
         }
       })
       .catch(() => undefined);
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (!src) {
     return <span className={className} aria-label={alt} role="img" />;
-  }
-
-  if (cropMark) {
-    return (
-      <span className={className} role="img" aria-label={alt} style={{ display: "inline-block", overflow: "hidden", position: "relative" }}>
-        <img
-          src={src}
-          alt=""
-          aria-hidden="true"
-          style={{ position: "absolute", width: "143%", maxWidth: "none", height: "auto", left: "-21.5%", top: "-14%" }}
-        />
-      </span>
-    );
   }
 
   return <img src={src} alt={alt} className={className} />;
