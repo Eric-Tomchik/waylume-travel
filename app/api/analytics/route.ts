@@ -17,10 +17,17 @@ const allowedEvents = new Set([
 
 export async function POST(request: Request) {
   try {
+    const intakeSecret = process.env.WAYLUME_INTAKE_SECRET;
+    if (!intakeSecret) return NextResponse.json({ ok: false }, { status: 202 });
+
     const body = await request.json();
-    if (!allowedEvents.has(String(body.event)) || !body.surface) return NextResponse.json({ error: "Unsupported event" }, { status: 400 });
+    if (!allowedEvents.has(String(body.event)) || !body.surface) {
+      return NextResponse.json({ error: "Unsupported event" }, { status: 400 });
+    }
+
     const client = getConvexServerClient();
     await client.mutation(analyticsTrack, {
+      intakeSecret,
       event: String(body.event),
       surface: String(body.surface).slice(0, 80),
       travelRequestId: body.travelRequestId ? String(body.travelRequestId) : undefined,
