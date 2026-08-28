@@ -51,7 +51,7 @@ type Props = { mode?: "floating" | "full" };
 
 const STARTER: ChatMessage = {
   role: "assistant",
-  content: "Where are we going? Tell me a destination, a rough idea, or just the kind of trip you want. I’ll shape it with you one question at a time.",
+  content: "Tell me what kind of trip you have in mind. I can help you explore destinations, hotel and resort styles, flight approaches, cruises, and experiences, then organize the details for your Waylume advisor.",
 };
 const STARTER_PROMPTS = ["Warm beach getaway", "Help me choose a cruise", "Romantic long weekend", "Family vacation ideas"];
 const STORAGE_KEY = "waylume-ai-concierge-v2";
@@ -132,7 +132,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
     { icon: MapPin, label: "Destination", value: profile.destination },
     { icon: CalendarDays, label: "Dates", value: profile.dates },
     { icon: Users, label: "Travelers", value: profile.travelers ? String(profile.travelers) : undefined },
-    { icon: WalletCards, label: "Budget", value: profile.budget },
+    { icon: WalletCards, label: "Budget guidance", value: profile.budget },
   ], [profile]);
 
   function openFloating() {
@@ -205,7 +205,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
 
     const lastAssistant = [...messages].reverse().find(message => message.role === "assistant")?.content ?? "";
     const notes = [
-      "AI-assisted Waylume planning brief.",
+      "AI-assisted Waylume planning brief for manual advisor supplier research.",
       profile.origin ? `Origin: ${profile.origin}.` : "",
       profile.pace ? `Pace: ${profile.pace}.` : "",
       profile.lodging ? `Lodging preference: ${profile.lodging}.` : "",
@@ -233,7 +233,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Unable to send trip brief");
       setHandoffStatus("success");
-      setHandoffMessage("Your planning brief is in the Waylume advisor pipeline.");
+      setHandoffMessage("Your trip brief has been sent to Waylume for advisor research.");
       track("ai_advisor_handoff", mode === "full" ? "concierge_full" : "concierge_floating", {
         page: pathname || "/",
         ai: source === "openai",
@@ -252,7 +252,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
         <div className="ai-avatar"><Sparkles size={19} /></div>
         <div>
           <strong>Waylume AI</strong>
-          <span><i /> Travel concierge · {source === "openai" ? "AI connected" : "interactive demo"}</span>
+          <span><i /> Trip discovery · {source === "openai" ? "AI connected" : "interactive demo"}</span>
         </div>
         <div className="ai-header-actions">
           <button type="button" onClick={resetConversation} aria-label="Start over" title="Start over"><RotateCcw size={16} /></button>
@@ -300,8 +300,8 @@ export default function AiConcierge({ mode = "floating" }: Props) {
                 <div>
                   <Sparkles size={17} />
                   <span>
-                    <strong>Have Waylume price this trip</strong>
-                    <small>Your conversation becomes a structured advisor brief. Final supplier pricing and booking still require confirmation.</small>
+                    <strong>Send this trip plan to Waylume</strong>
+                    <small>Your conversation becomes a structured advisor brief. Your Waylume advisor then researches current supplier options, availability, and final pricing manually.</small>
                   </span>
                 </div>
                 <label>Name<input required maxLength={120} value={contact.name} onChange={event => setContact(current => ({ ...current, name: event.target.value }))} placeholder="Your name" /></label>
@@ -316,7 +316,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
           <div className="ai-composer-wrap">
             {readyForAdvisor && !showHandoff && (
               <button type="button" className="ai-advisor-cta" onClick={() => setShowHandoff(true)}>
-                <CheckCircle2 size={16} /> Have Waylume price this trip <ArrowRight size={15} />
+                <CheckCircle2 size={16} /> Research my options with Waylume <ArrowRight size={15} />
               </button>
             )}
             <form className="ai-composer" onSubmit={event => { event.preventDefault(); void sendMessage(); }}>
@@ -332,19 +332,19 @@ export default function AiConcierge({ mode = "floating" }: Props) {
                 maxLength={1200}
                 rows={1}
                 aria-label="Ask Waylume AI about your trip"
-                placeholder="Ask Waylume anything about your trip…"
+                placeholder="Ask about destinations, hotels, flights, cruises, or experiences…"
               />
               <button type="submit" disabled={!input.trim() || loading} aria-label="Send message"><Send size={18} /></button>
             </form>
-            <small className="ai-disclaimer">Planning guidance only. Live supplier pricing, availability, terms, and bookings require confirmation.</small>
+            <small className="ai-disclaimer">Waylume AI shows planning possibilities, not live inventory or prices. Current supplier availability and final pricing are researched and confirmed by your advisor.</small>
           </div>
         </div>
 
         {mode === "full" && (
           <aside className="ai-brief-panel">
             <span className="eyebrow"><Compass size={15} /> Live trip brief</span>
-            <h2>Your trip takes shape as you chat.</h2>
-            <p>Waylume AI keeps the important details organized so you can refine the same trip naturally instead of restarting a search.</p>
+            <h2>Explore what your trip could include.</h2>
+            <p>Waylume AI organizes your preferences and helps you explore possible destinations, stays, flights, cruises, and experiences before your advisor researches current supplier options.</p>
             <div className="ai-brief-grid">
               {briefItems.map(({ icon: Icon, label, value }) => (
                 <article className={value ? "filled" : ""} key={label}>
@@ -364,7 +364,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
             )}
             {itineraryPreview.length > 0 && (
               <div className="ai-itinerary-preview">
-                <small>AI itinerary preview</small>
+                <small>Possible itinerary shape</small>
                 {itineraryPreview.map(day => (
                   <article key={day.day}>
                     <b>{day.day}</b>
@@ -375,7 +375,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
             )}
             <div className="ai-human-card">
               <MessageCircle size={20} />
-              <div><strong>AI discovery. Human follow-through.</strong><p>When the brief is ready, Waylume moves it into the advisor workflow for actual supplier research and booking support.</p></div>
+              <div><strong>AI discovery. Advisor-researched options.</strong><p>When the brief is ready, Waylume uses it to manually research current supplier availability, final pricing, terms, and booking choices.</p></div>
             </div>
           </aside>
         )}
@@ -389,7 +389,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
     <>
       {!open && (
         <button className="ai-launcher" type="button" onClick={openFloating}>
-          <span><Sparkles size={19} /></span><b>Ask Waylume AI</b><small>Plan a trip</small>
+          <span><Sparkles size={19} /></span><b>Ask Waylume AI</b><small>Explore a trip</small>
         </button>
       )}
       {open && <div className="ai-floating-wrap">{content}</div>}
