@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "waylume-travel",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-28",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "NEXT_PUBLIC_CONVEX_URL": "https://secret-heron-979.convex.cloud",
+    "CONVEX_SITE_URL": "https://secret-heron-979.convex.site"
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "upload_source_maps": true
+}
