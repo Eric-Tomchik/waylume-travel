@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
+import { isAdminRequest } from "@/lib/adminAuth";
 
 export function isAuthorized(request: Request) {
-  const expected = process.env.WAYLUME_ADMIN_TOKEN;
-  const supplied = request.headers.get("x-admin-token");
-  return Boolean(expected && supplied && supplied === expected);
+  return isAdminRequest(request);
 }
 
 export async function proxyAdmin(request: Request, path: string, method: "GET" | "POST" | "PATCH") {

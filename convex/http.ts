@@ -11,19 +11,30 @@ function isAdmin(request: Request) {
   return Boolean(expected && request.headers.get("x-admin-token") === expected);
 }
 
+function isTrustedIntake(request: Request) {
+  const expected = process.env.WAYLUME_INTAKE_SECRET;
+  return Boolean(expected && request.headers.get("x-waylume-intake-secret") === expected);
+}
+
 function unauthorized() {
   return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: jsonHeaders });
 }
 
 http.route({ path: "/trip-request", method: "POST", handler: httpAction(async (ctx, request) => {
+  if (!isTrustedIntake(request)) return unauthorized();
   try {
     const body = await request.json();
-    if (!body.name || !body.email || !body.destination) return new Response(JSON.stringify({ error: "Name, email, and destination are required." }), { status: 400, headers: jsonHeaders });
+    const name = String(body.name || "").trim().slice(0, 100);
+    const email = String(body.email || "").trim().toLowerCase().slice(0, 254);
+    const destination = String(body.destination || "").trim().slice(0, 120);
+    if (!name || !email || !destination || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return new Response(JSON.stringify({ error: "Valid name, email, and destination are required." }), { status: 400, headers: jsonHeaders });
     const id = await ctx.runMutation(internal.travelRequests.create, {
-      name: String(body.name).trim(), email: String(body.email).trim().toLowerCase(), destination: String(body.destination).trim(),
-      dates: body.dates ? String(body.dates).trim() : undefined, travelers: body.travelers ? String(body.travelers).trim() : "2",
-      budget: body.budget ? String(body.budget).trim() : undefined, tripType: body.tripType ? String(body.tripType).trim() : "Vacation Package",
-      notes: body.notes ? String(body.notes).trim() : undefined,
+      name, email, destination,
+      dates: body.dates ? String(body.dates).trim().slice(0, 100) : undefined,
+      travelers: body.travelers ? String(body.travelers).trim().slice(0, 20) : "2",
+      budget: body.budget ? String(body.budget).trim().slice(0, 50) : undefined,
+      tripType: body.tripType ? String(body.tripType).trim().slice(0, 50) : "Vacation Package",
+      notes: body.notes ? String(body.notes).trim().slice(0, 2000) : undefined,
     });
     return new Response(JSON.stringify({ ok: true, id }), { status: 201, headers: jsonHeaders });
   } catch { return new Response(JSON.stringify({ error: "Unable to process trip request." }), { status: 400, headers: jsonHeaders }); }

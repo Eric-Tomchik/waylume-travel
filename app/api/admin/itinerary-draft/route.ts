@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isAdminRequest } from "@/lib/adminAuth";
 import { getConvexServerClient, travelRequestGetForAdmin } from "@/lib/convexServer";
 
 type Day = { day: number; title: string; details: string };
@@ -15,9 +16,25 @@ function fallbackDraft(destination: string, tripType: string, dates?: string, tr
   return { title: `${destination} — ${tripType} draft`, summary: `A planning-first itinerary framework for ${destination}. It is intentionally supplier-neutral until live availability and booking details are confirmed.`, days, source: "draft-builder" };
 }
 
+function normalizeProviderDraft(generated: any) {
+  if (!generated?.title || !generated?.summary || !Array.isArray(generated.days)) return null;
+  const days = generated.days.slice(0, 31).map((item: any, index: number) => ({
+    day: Number(item?.day) || index + 1,
+    title: String(item?.title || `Day ${index + 1}`).slice(0, 160),
+    details: String(item?.details || "").slice(0, 5000),
+  }));
+  if (!days.length) return null;
+  return {
+    title: String(generated.title).slice(0, 160),
+    summary: String(generated.summary).slice(0, 4000),
+    days,
+    source: "ai" as const,
+  };
+}
+
 export async function POST(request: Request) {
   const adminSecret = process.env.WAYLUME_ADMIN_TOKEN;
-  if (!adminSecret || request.headers.get("x-admin-token") !== adminSecret) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!adminSecret || !isAdminRequest(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const body = await request.json();
     if (!body.travelRequestId) return NextResponse.json({ error: "travelRequestId is required" }, { status: 400 });
@@ -32,13 +49,13 @@ export async function POST(request: Request) {
           method: "POST",
           headers: { "Content-Type": "application/json", ...(process.env.WAYLUME_ITINERARY_DRAFT_WEBHOOK_SECRET ? { Authorization: `Bearer ${process.env.WAYLUME_ITINERARY_DRAFT_WEBHOOK_SECRET}` } : {}) },
           body: JSON.stringify({ destination: trip.destination, dates: trip.dates, travelers: trip.travelers, budget: trip.budget, tripType: trip.tripType, notes: trip.notes }),
+          signal: AbortSignal.timeout(15000),
         });
-        const generated = await response.json();
-        if (response.ok && generated.title && generated.summary && Array.isArray(generated.days)) {
-          return NextResponse.json({ draft: { title: String(generated.title), summary: String(generated.summary), days: generated.days, source: "ai" } });
-        }
+        const generated = await response.json().catch(() => null);
+        const normalized = response.ok ? normalizeProviderDraft(generated) : null;
+        if (normalized) return NextResponse.json({ draft: normalized });
       } catch {
-        // Provider failure falls back to a deterministic draft so the advisor workflow remains usable.
+        // Provider failure intentionally falls through to the deterministic draft builder.
       }
     }
 

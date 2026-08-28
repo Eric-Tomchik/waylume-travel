@@ -1,10 +1,11 @@
 import { createHash, randomBytes } from "crypto";
 import { NextResponse } from "next/server";
+import { isAdminRequest } from "@/lib/adminAuth";
 import { getConvexServerClient, portalCreateAccess, portalListAccess, portalRevokeAccess } from "@/lib/convexServer";
 
 function adminSecretFor(request: Request) {
   const expected = process.env.WAYLUME_ADMIN_TOKEN;
-  return expected && request.headers.get("x-admin-token") === expected ? expected : null;
+  return expected && isAdminRequest(request) ? expected : null;
 }
 
 function makeToken() {
