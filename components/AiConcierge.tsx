@@ -171,12 +171,12 @@ export default function AiConcierge({ mode = "floating" }: Props) {
       setNextPrompts(data.nextPrompts?.length ? data.nextPrompts : STARTER_PROMPTS);
       setReadyForAdvisor(Boolean(data.readyForAdvisor));
       setSource(data.source === "openai" ? "openai" : "demo");
-      setMessages(current => [...current, { role: "assistant", content: data.reply }].slice(-18));
+      setMessages(current => [...current, { role: "assistant", content: data.reply } as ChatMessage].slice(-18));
     } catch {
       setMessages(current => [
         ...current,
-        { role: "assistant", content: "I hit a connection issue, but your trip notes are still here. Try again, or send the current brief to a Waylume advisor." },
-      ]);
+        { role: "assistant", content: "I hit a connection issue, but your trip notes are still here. Try again, or send the current brief to a Waylume advisor." } as ChatMessage,
+      ].slice(-18));
     } finally {
       setLoading(false);
     }
