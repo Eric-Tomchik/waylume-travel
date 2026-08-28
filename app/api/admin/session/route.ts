@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { ADMIN_SESSION_COOKIE, createAdminSessionToken, verifyAdminSessionToken } from "@/lib/adminSession";
+import { allowRequest, requestFingerprint } from "@/lib/rateLimit";
 
 function equalSecret(a: string, b: string) {
   const left = Buffer.from(a);
@@ -18,6 +19,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const rate = allowRequest(`admin-login:${requestFingerprint(request)}`, 5, 15 * 60 * 1000);
+  if (!rate.allowed) return NextResponse.json({ error: "Too many sign-in attempts. Try again later." }, { status: 429, headers: { "Retry-After": String(rate.retryAfter) } });
+
   const expected = process.env.WAYLUME_ADMIN_TOKEN;
   if (!expected) return NextResponse.json({ error: "Admin authentication is not configured" }, { status: 503 });
   const body = await request.json().catch(() => ({}));
