@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CalendarDays, CheckCircle2, MapPin, Plane, ReceiptText, XCircle } from "lucide-react";
+import WaylumeLogo from "@/components/WaylumeLogo";
 
 type Portal = {
   email: string;
@@ -50,7 +51,7 @@ export default function TravelerPortalPage() {
   }
 
   return <main className="portal-shell"><div className="shell">
-    <header className="portal-header"><Link href="/" className="brand"><img src="/waylume-mark.svg" alt="" className="brand-mark"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span></Link><span className="portal-badge">Traveler Portal</span></header>
+    <header className="portal-header"><Link href="/" className="brand"><WaylumeLogo cropMark className="brand-mark" alt="Waylume Travel"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span></Link><span className="portal-badge">Traveler Portal</span></header>
     {loading && <div className="portal-state"><h1>Opening your trip…</h1><p>Securely loading your Waylume travel workspace.</p></div>}
     {error && !portal && <div className="portal-state"><h1>We couldn’t open this trip.</h1><p>{error}</p><Link className="button" href="/#plan">Contact Waylume</Link></div>}
     {portal && <>
