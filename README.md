@@ -52,8 +52,41 @@ The browser submits the advisor passcode to the Next.js server over HTTPS. The s
 1. Configure/deploy Convex functions to `secret-heron-979` with `npm run convex:deploy`.
 2. Set `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_SITE_URL` in the web host.
 3. Generate a strong `WAYLUME_ADMIN_TOKEN` and set the same value in both the web host and Convex environment.
-4. Deploy the Next.js app to Vercel or another Node-compatible host.
+4. Deploy the Next.js app to Vercel, Cloudflare Workers, or another compatible host.
 5. Test a public trip submission and verify it appears in `/admin`.
+
+### Cloudflare Workers
+
+This project is configured for Cloudflare Workers through OpenNext. Convex remains
+the application database and HTTP Actions backend.
+
+```bash
+npm install
+npm run cf:build
+npm run cf:preview
+```
+
+Before the first permanent deployment, authenticate Wrangler and store secrets in
+Cloudflare. Use the same production values already configured for Vercel and
+Convex; do not place them in `wrangler.jsonc`.
+
+```bash
+npx wrangler login
+npx wrangler secret put WAYLUME_ADMIN_TOKEN
+npx wrangler secret put WAYLUME_ADMIN_SESSION_SECRET
+npx wrangler secret put WAYLUME_INTAKE_SECRET
+npm run cf:deploy
+```
+
+Add optional provider secrets with `wrangler secret put` only when those
+integrations are enabled. After assigning a production hostname, set
+`WAYLUME_SITE_ORIGIN` as a Worker variable or secret to that exact HTTPS origin.
+
+Useful commands:
+
+- `npm run cf:types` regenerates Cloudflare binding types.
+- `npm run cf:check` validates the built Worker without deploying.
+- `npm run cf:preview` runs the production Worker locally.
 
 ## Brand asset
 
