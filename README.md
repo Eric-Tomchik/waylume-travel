@@ -1,22 +1,49 @@
 # Waylume Travel
 
-Modern travel-discovery and lead-generation prototype for **Waylume Travel — Independent Agent of Archer**.
+**Waylume Travel — Independent Agent of Archer** is an advisor-backed travel discovery and planning platform built with Next.js, TypeScript, Convex, and an optional OpenAI conversational layer.
+
+The product is intentionally designed around **AI discovery + human follow-through**. Travelers can explore and shape a trip with Waylume AI, then send the resulting brief into the advisor workflow for current supplier research, pricing, availability, terms, and booking support.
 
 ## Current capabilities
 
-- Responsive Next.js 15 + TypeScript website
-- Waylume navy/aqua brand system
-- Flights, resorts, cruises, and custom-trip discovery sections
-- Curated destination discovery page
-- Promotions/inspiration page designed to avoid presenting unverified live pricing
-- Functional trip-request form
-- Convex-backed lead pipeline
+### Traveler experience
+
+- Responsive travel-discovery website
+- Destination and promotion discovery
+- Guided Smart Planner
+- Conversational **Waylume AI** concierge
+- Floating AI concierge across public pages
+- Full `/concierge` planning workspace
+- Session-persistent conversation and trip brief
+- AI-generated recommendation cards and itinerary previews
+- Direct **Have Waylume price this trip** handoff into the existing lead pipeline
+- Public trip-request form
+- Passwordless traveler portal
+- Quote review and accept/decline preference workflow
+- Published itinerary viewing
+
+### Advisor experience
+
 - Protected advisor workspace at `/admin`
-- Inquiry status workflow: `new → contacted → quoted → booked → closed`
-- Server-side admin proxy so the Convex admin secret is never embedded in client code
-- Private Convex lead queries/mutations
-- GitHub Actions frontend build/typecheck workflow
-- Archer independent-agent disclosure language
+- Signed HttpOnly advisor sessions
+- Inquiry pipeline and status management
+- Quote workspace
+- Itinerary workspace and draft-builder/provider adapter
+- Traveler portal access management
+- Promotions CMS
+- Supplier resource workspace
+- Notification queue/provider hooks
+- First-party analytics, including AI concierge engagement events
+
+### Platform and deployment
+
+- Next.js 15 + React 19 + TypeScript
+- Convex application data/backend
+- GitHub Actions typecheck/build CI
+- Vercel-compatible deployment
+- Cloudflare Workers deployment through OpenNext
+- Server-side secrets only; no provider keys are exposed to the browser
+- Archer independent-agent disclosure language throughout the booking flow
 
 ## Local setup
 
@@ -27,77 +54,97 @@ npm run convex:dev
 npm run dev
 ```
 
-The example environment references the existing `secret-heron-979` Convex deployment. `convex dev` connects/configures the backend and generates the `convex/_generated` files used by Convex functions.
+## Environment variables
 
-## Environment
+Core application:
 
-- `NEXT_PUBLIC_CONVEX_URL=https://secret-heron-979.convex.cloud` — standard Convex client endpoint.
-- `CONVEX_SITE_URL=https://secret-heron-979.convex.site` — HTTP Actions endpoint.
-- `WAYLUME_ADMIN_TOKEN` — long random secret used for advisor access. Configure the same value in the web-host environment and the Convex deployment environment. Never commit the real value.
+- `NEXT_PUBLIC_CONVEX_URL` — Convex client endpoint.
+- `CONVEX_SITE_URL` — Convex HTTP Actions endpoint.
+- `WAYLUME_ADMIN_TOKEN` — strong advisor/backend secret; set in both the web host and Convex where required.
+- `WAYLUME_ADMIN_SESSION_SECRET` — separate strong secret used to sign advisor sessions.
+- `WAYLUME_INTAKE_SECRET` — shared web-host/Convex secret protecting the public intake handoff.
+- `WAYLUME_SITE_ORIGIN` — optional exact public HTTPS origin used for origin checks.
 
-## Lead flow
+Waylume AI:
 
-Public workflow:
+- `OPENAI_API_KEY` — optional server-side OpenAI API key. If absent, the concierge remains functional in deterministic interactive demo mode.
+- `WAYLUME_AI_MODEL` — optional model override. The default is `gpt-5.6-luna` for a cost-efficient conversational experience.
 
-`Traveler → /api/trip-request → Convex /trip-request → travelRequests table`
+Optional providers:
 
-Advisor workflow:
+- `RESEND_API_KEY`
+- `WAYLUME_EMAIL_FROM`
+- `WAYLUME_NOTIFICATION_WEBHOOK_URL`
+- `WAYLUME_NOTIFICATION_WEBHOOK_SECRET`
+- `WAYLUME_ITINERARY_DRAFT_WEBHOOK_URL`
+- `WAYLUME_ITINERARY_DRAFT_WEBHOOK_SECRET`
 
-`/admin → Next.js protected API → Convex protected HTTP Action → private internal query/mutation`
+Never commit real secret values.
 
-The browser submits the advisor passcode to the Next.js server over HTTPS. The server verifies it before proxying a request to Convex. Convex independently verifies the same secret before allowing lead access or status changes.
+## Waylume AI flow
+
+```text
+Traveler
+  ↓
+Floating concierge or /concierge
+  ↓
+/api/ai/concierge
+  ├─ OPENAI_API_KEY configured → OpenAI Responses API + structured output
+  └─ no key/provider failure → deterministic Waylume demo engine
+  ↓
+Live trip profile + recommendations + itinerary preview
+  ↓
+Have Waylume price this trip
+  ↓
+/api/trip-request
+  ↓
+Convex travelRequests
+  ↓
+Advisor workspace + supplier research
+```
+
+The AI is deliberately prevented from representing planning ideas as live supplier inventory. It may organize preferences, recommend directions, and draft itinerary ideas, but final flights, hotels, cruises, packages, availability, prices, payment terms, and bookings require advisor/supplier confirmation.
+
+## AI privacy and guardrails
+
+- OpenAI requests are sent server-side only.
+- Concierge API calls use `store: false`.
+- Browser analytics record interaction events such as open/message/handoff, not the traveler’s chat text.
+- Conversation state is stored in browser `sessionStorage` for continuity during the current browsing session.
+- Inputs and provider outputs are length-bounded and normalized before use.
+- The public AI endpoint is rate-limited at the application layer; production edge-rate-limiting can be added through the hosting/CDN layer as traffic grows.
 
 ## Production deployment
 
-1. Configure/deploy Convex functions to `secret-heron-979` with `npm run convex:deploy`.
-2. Set `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_SITE_URL` in the web host.
-3. Generate a strong `WAYLUME_ADMIN_TOKEN` and set the same value in both the web host and Convex environment.
-4. Deploy the Next.js app to Vercel, Cloudflare Workers, or another compatible host.
-5. Test a public trip submission and verify it appears in `/admin`.
+1. Deploy/update the Convex functions.
+2. Set the required Convex and Waylume secrets in the web host and Convex environments.
+3. Deploy the Next.js application to Vercel or Cloudflare Workers.
+4. Add `OPENAI_API_KEY` only when you want the concierge to use the live AI provider; the demo engine works without it.
+5. Set `WAYLUME_SITE_ORIGIN` to the final HTTPS origin when the production domain is assigned.
+6. Test the complete path: concierge → advisor handoff → `/admin` → quote/itinerary → traveler portal.
 
 ### Cloudflare Workers
 
-This project is configured for Cloudflare Workers through OpenNext. Convex remains
-the application database and HTTP Actions backend.
+The repository is configured for Cloudflare Workers with OpenNext while Convex remains the application backend.
 
 ```bash
 npm install
 npm run cf:build
 npm run cf:preview
+npm run cf:check
 ```
 
-Before the first permanent deployment, authenticate Wrangler and store secrets in
-Cloudflare. Use the same production values already configured for Vercel and
-Convex; do not place them in `wrangler.jsonc`.
+For deployment:
 
 ```bash
 npx wrangler login
 npx wrangler secret put WAYLUME_ADMIN_TOKEN
 npx wrangler secret put WAYLUME_ADMIN_SESSION_SECRET
 npx wrangler secret put WAYLUME_INTAKE_SECRET
+npx wrangler secret put OPENAI_API_KEY   # optional
 npm run cf:deploy
 ```
 
-Add optional provider secrets with `wrangler secret put` only when those
-integrations are enabled. After assigning a production hostname, set
-`WAYLUME_SITE_ORIGIN` as a Worker variable or secret to that exact HTTPS origin.
+## Product direction
 
-Useful commands:
-
-- `npm run cf:types` regenerates Cloudflare binding types.
-- `npm run cf:check` validates the built Worker without deploying.
-- `npm run cf:preview` runs the production Worker locally.
-
-## Brand asset
-
-`public/waylume-mark.svg` is the current lightweight web mark based on the supplied Waylume identity and color direction. The original high-resolution company logo can later be added as `public/waylume-logo.png` for full wordmark usage without changing the application architecture.
-
-## Next milestones
-
-- Database-driven promotions CMS
-- Individual destination detail pages
-- Advisor notes and follow-up timestamps
-- Email notifications
-- AI-assisted trip discovery
-- Supplier / affiliate integrations where permitted
-- Authentication and saved traveler profiles
+Waylume is not intended to be an autonomous travel agency. Its differentiator is a modern conversational planning interface that produces an unusually complete, structured brief for a real travel advisor. Supplier integrations can progressively add richer live inventory later without changing that advisor-backed operating model.
