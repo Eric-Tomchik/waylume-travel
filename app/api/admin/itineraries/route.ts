@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
+import { isAdminRequest } from "@/lib/adminAuth";
 import { getConvexServerClient, itineraryListByRequest, itineraryUpsert } from "@/lib/convexServer";
 
 function getAdminSecret(request: Request) {
   const expected = process.env.WAYLUME_ADMIN_TOKEN;
-  const supplied = request.headers.get("x-admin-token");
-  return expected && supplied === expected ? expected : null;
+  return expected && isAdminRequest(request) ? expected : null;
 }
 
 export async function GET(request: Request) {
@@ -33,9 +33,9 @@ export async function POST(request: Request) {
       adminSecret,
       id: body.id || undefined,
       travelRequestId: body.travelRequestId,
-      title: String(body.title),
-      summary: String(body.summary),
-      days: body.days.map((day: { day: unknown; title: unknown; details: unknown }) => ({ day: Number(day.day), title: String(day.title), details: String(day.details) })),
+      title: String(body.title).slice(0, 160),
+      summary: String(body.summary).slice(0, 4000),
+      days: body.days.slice(0, 31).map((day: { day: unknown; title: unknown; details: unknown }) => ({ day: Number(day.day), title: String(day.title).slice(0, 160), details: String(day.details).slice(0, 5000) })),
       published: Boolean(body.published),
       source: validSources.has(String(body.source)) ? body.source : "manual",
     });
