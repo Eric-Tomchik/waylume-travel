@@ -3,6 +3,12 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { loadAdminSettings } from "@/lib/adminSettingsClient";
+
+async function landingTarget() {
+  const settings = await loadAdminSettings();
+  return settings?.landingPage || "/admin/overview";
+}
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -13,7 +19,7 @@ export default function AdminLoginPage() {
   useEffect(() => {
     fetch("/api/admin/session", { cache: "no-store" })
       .then(response => response.json())
-      .then(data => { if (data.authenticated) router.replace("/admin/overview"); })
+      .then(async data => { if (data.authenticated) router.replace(await landingTarget()); })
       .catch(() => undefined);
   }, [router]);
 
@@ -29,7 +35,7 @@ export default function AdminLoginPage() {
     setLoading(false);
     if (!response.ok) return setError("Invalid advisor passcode.");
     setPasscode("");
-    router.push("/admin/overview");
+    router.push(await landingTarget());
     router.refresh();
   }
 

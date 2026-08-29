@@ -58,3 +58,33 @@ export const updateInternal = internalMutation({
     return { ok: true };
   },
 });
+
+/**
+ * Permanently deletes a trip request and every record that hangs off it:
+ * quotes, itineraries, portal access grants, and queued notifications.
+ * Without this cascade the dashboard would keep showing orphaned children.
+ */
+export const removeInternal = internalMutation({
+  args: { id: v.id("travelRequests") },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.get(args.id);
+    if (!existing) return { ok: false, reason: "not-found" };
+
+    const quotes = await ctx.db.query("quotes").withIndex("by_request", q => q.eq("travelRequestId", args.id)).collect();
+    for (const quote of quotes) await ctx.db.delete(quote._id);
+
+    const itineraries = await ctx.db.query("itineraries").withIndex("by_request", q => q.eq("travelRequestId", args.id)).collect();
+    for (const itinerary of itineraries) await ctx.db.delete(itinerary._id);
+
+    const access = await ctx.db.query("portalAccess").withIndex("by_request", q => q.eq("travelRequestId", args.id)).collect();
+    for (const grant of access) await ctx.db.delete(grant._id);
+
+    const notifications = await ctx.db.query("notificationQueue").collect();
+    for (const notification of notifications) {
+      if (notification.relatedTravelRequestId === args.id) await ctx.db.delete(notification._id);
+    }
+
+    await ctx.db.delete(args.id);
+    return { ok: true, deletedQuotes: quotes.length, deletedItineraries: itineraries.length };
+  },
+});

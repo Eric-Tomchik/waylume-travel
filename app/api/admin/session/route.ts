@@ -2,6 +2,19 @@ import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { ADMIN_SESSION_COOKIE, createAdminSessionToken, verifyAdminSessionToken } from "@/lib/adminSession";
 import { allowRequest, requestFingerprint } from "@/lib/rateLimit";
+import { verifyPasscode } from "@/lib/adminPasscode";
+import { getConvexServerClient, adminSettingsGetCredential } from "@/lib/convexServer";
+
+/** True when the advisor has set their own passcode in Settings and it matches. */
+async function matchesStoredPasscode(supplied: string, adminSecret: string) {
+  try {
+    const credential = await getConvexServerClient().query(adminSettingsGetCredential, { adminSecret });
+    if (!credential) return false;
+    return await verifyPasscode(supplied, credential.hash, credential.salt);
+  } catch {
+    return false;
+  }
+}
 
 function equalSecret(a: string, b: string) {
   const left = Buffer.from(a);
@@ -26,7 +39,8 @@ export async function POST(request: Request) {
   if (!expected) return NextResponse.json({ error: "Admin authentication is not configured" }, { status: 503 });
   const body = await request.json().catch(() => ({}));
   const supplied = String(body.passcode || "");
-  if (!supplied || !equalSecret(supplied, expected)) return NextResponse.json({ error: "Invalid passcode" }, { status: 401 });
+  const authorized = Boolean(supplied) && (equalSecret(supplied, expected) || await matchesStoredPasscode(supplied, expected));
+  if (!authorized) return NextResponse.json({ error: "Invalid passcode" }, { status: 401 });
 
   const response = NextResponse.json({ ok: true });
   response.cookies.set(ADMIN_SESSION_COOKIE, createAdminSessionToken(), {

@@ -72,6 +72,17 @@ http.route({ path: "/admin/leads", method: "PATCH", handler: httpAction(async (c
   } catch { return new Response(JSON.stringify({ error: "Unable to update inquiry" }), { status: 400, headers: jsonHeaders }); }
 }) });
 
+http.route({ path: "/admin/leads", method: "DELETE", handler: httpAction(async (ctx, request) => {
+  if (!isAdmin(request)) return unauthorized();
+  try {
+    const body = await request.json();
+    if (!body.id) return new Response(JSON.stringify({ error: "Lead id is required" }), { status: 400, headers: jsonHeaders });
+    const result = await ctx.runMutation(internal.travelRequests.removeInternal, { id: body.id as Id<"travelRequests"> });
+    if (!result.ok) return new Response(JSON.stringify({ error: "Inquiry not found" }), { status: 404, headers: jsonHeaders });
+    return new Response(JSON.stringify(result), { status: 200, headers: jsonHeaders });
+  } catch { return new Response(JSON.stringify({ error: "Unable to delete inquiry" }), { status: 400, headers: jsonHeaders }); }
+}) });
+
 http.route({ path: "/admin/quotes", method: "GET", handler: httpAction(async (ctx, request) => {
   if (!isAdmin(request)) return unauthorized();
   const requestId = new URL(request.url).searchParams.get("requestId");
