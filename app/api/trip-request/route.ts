@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { allowRequest, requestFingerprint } from "@/lib/rateLimit";
 import { validateTripRequest } from "@/lib/tripRequestValidation";
+import { notifyNewLead } from "@/lib/leadNotifications";
 
 export async function POST(request: Request) {
   const contentLength = Number(request.headers.get("content-length") || 0);
@@ -35,6 +36,8 @@ export async function POST(request: Request) {
 
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return NextResponse.json({ error: data?.error ?? "Unable to save trip request" }, { status: response.status });
+    await notifyNewLead(validation.payload, data?.id ? String(data.id) : undefined);
+
     return NextResponse.json(data, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
