@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: "%s | Waylume Travel",
   },
   description:
-    "Explore destinations, cruises, vacation packages, culture, nightlife, and travel stories. Save ideas, research with Waylume AI, then work with a real advisor for current supplier options.",
+    "Explore destinations, cruises, vacation packages, culture, nightlife, and travel stories. Save ideas, research with Waylume AI, then book with an independent advisor of Fora Travel, Inc.",
   openGraph: {
     title: "Waylume Travel | Ideas first. Your trip follows.",
     description: "Inspirational travel discovery, AI-assisted research, and real advisor follow-through.",

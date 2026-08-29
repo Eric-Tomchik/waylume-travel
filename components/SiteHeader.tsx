@@ -2,12 +2,13 @@ import Link from "next/link";
 import { Menu, Sparkles } from "lucide-react";
 import WaylumeLogo from "@/components/WaylumeLogo";
 import SavedIdeasLink from "@/components/SavedIdeasLink";
+import { HOST_AGENCY } from "@/lib/hostAgency";
 
 const links = [
   { href: "/destinations", label: "Destinations" },
   { href: "/#trip-styles", label: "Trip styles" },
   { href: "/journal", label: "Journal" },
-  { href: "/deals", label: "Promotions" },
+  { href: "/how-booking-works", label: "How booking works" },
 ];
 
 export default function SiteHeader() {
@@ -16,7 +17,7 @@ export default function SiteHeader() {
       <div className="site-nav shell">
         <Link href="/" className="site-brand" aria-label="Waylume Travel home">
           <WaylumeLogo className="site-brand-mark" alt="" />
-          <span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Fora Travel, Inc.</small></span>
+          <span><strong>WAYLUME</strong> <em>TRAVEL</em><small>{HOST_AGENCY.disclosure}</small></span>
         </Link>
         <nav className="desktop-nav" aria-label="Primary navigation">
           {links.map((link) => <Link href={link.href} key={link.href}>{link.label}</Link>)}

@@ -1,5 +1,6 @@
 import { deliverNotification } from "@/lib/notificationProvider";
 import { getConvexServerClient, notificationsEnqueue, notificationsMarkResult } from "@/lib/convexServer";
+import { HOST_AGENCY } from "@/lib/hostAgency";
 
 export type LeadPayload = {
   name: string;
@@ -31,7 +32,7 @@ function advisorBody(lead: LeadPayload) {
 }
 
 function travelerBody(lead: LeadPayload) {
-  return `Hi ${lead.name},\n\nThanks for sending your trip details to Waylume Travel. We have your request for ${lead.destination} and a real advisor is reviewing it now.\n\nWhat happens next: we research current supplier availability and options that fit what you described, then follow up personally with recommendations. Availability, pricing, and booking terms are confirmed at the time of booking.\n\nIf anything changes or you want to add details, just reply to this email.\n\n— Waylume Travel\nIndependent Agent of Fora Travel, Inc.\n`;
+  return `Hi ${lead.name},\n\nThanks for sending your trip details to Waylume Travel. We have your request for ${lead.destination} and a real advisor is reviewing it now.\n\nWhat happens next: we research current supplier availability and options that fit what you described, then follow up personally with recommendations. Availability, pricing, and booking terms are confirmed at the time of booking. Secure payment is completed through an approved Fora or supplier workflow.\n\nIf anything changes or you want to add details, just reply to this email.\n\n— Waylume Travel\n${HOST_AGENCY.disclosure}\n`;
 }
 
 /**

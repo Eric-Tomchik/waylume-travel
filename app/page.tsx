@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, Compass, Globe2, Hotel, Map, Music2, Ship, Sparkles, Utensils, Waves } from "lucide-react";
+import { ArrowRight, Check, Compass, FileCheck2, Globe2, Hotel, Map, MessageSquareText, Music2, SearchCheck, ShieldCheck, Ship, Sparkles, Utensils, Waves } from "lucide-react";
 import SaveShareActions from "@/components/SaveShareActions";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import TripRequestForm from "@/components/TripRequestForm";
 import { destinations } from "@/lib/destinations";
+import { HOST_AGENCY } from "@/lib/hostAgency";
 import { journalArticles } from "@/lib/journal";
 
 const tripStyles = [
@@ -137,12 +138,35 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="inspire-section shell advisor-booking-section">
+        <div className="advisor-booking-intro">
+          <div>
+            <span className="eyebrow">Waylume + Fora</span>
+            <h2>Inspiration here. Personalized booking with your advisor.</h2>
+          </div>
+          <div>
+            <p>Waylume helps you discover and define the trip. When you are ready, your Waylume advisor researches current options and guides the proposal, secure booking, and follow-through using Fora-approved and supplier systems.</p>
+            <Link href="/how-booking-works">See exactly how booking works <ArrowRight size={16} /></Link>
+          </div>
+        </div>
+        <div className="advisor-booking-steps">
+          <article><Compass size={22} /><b>01</b><h3>Explore</h3><p>Browse destinations, guides, cruises, packages, culture, nightlife, and must-do experiences.</p></article>
+          <article><MessageSquareText size={22} /><b>02</b><h3>Shape the brief</h3><p>Save and share ideas, use Waylume AI, or send your trip details directly.</p></article>
+          <article><SearchCheck size={22} /><b>03</b><h3>Compare options</h3><p>Your advisor researches current supplier choices, final pricing, terms, and eligible benefits.</p></article>
+          <article><FileCheck2 size={22} /><b>04</b><h3>Book securely</h3><p>Review the proposal and complete payment through an approved Fora or supplier workflow.</p></article>
+        </div>
+        <div className="advisor-booking-trust">
+          <ShieldCheck size={19} />
+          <p><strong>{HOST_AGENCY.disclosure}.</strong> Preferred benefits may be available on eligible bookings; inclusions vary and are confirmed in your proposal.</p>
+        </div>
+      </section>
+
       <section id="plan" className="inspire-section shell plan-grid inspiration-plan">
         <div>
           <span className="eyebrow">Ready for advisor research</span>
           <h2>Already know the direction? Send the details.</h2>
           <p className="lead compact">Your request enters the Waylume advisor workflow for manual research of current supplier availability, final pricing, booking terms, and relevant choices.</p>
-          <div className="notice"><strong>Discovery content, clearly separated from booking</strong><p>Waylume Travel operates as an Independent Agent of Fora Travel, Inc. Website ideas and AI suggestions are inspirational and are not claims of live inventory, confirmed pricing, or completed reservations.</p></div>
+          <div className="notice"><strong>Discovery content, clearly separated from booking</strong><p>Waylume Travel is an independently branded travel advisory. {HOST_AGENCY.disclosure}. Website ideas and AI suggestions are inspirational and are not claims of live inventory, confirmed pricing, or completed reservations.</p></div>
         </div>
         <TripRequestForm />
       </section>

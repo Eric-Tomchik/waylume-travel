@@ -235,7 +235,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Unable to send trip brief");
       setHandoffStatus("success");
-      setHandoffMessage("Your trip brief has been sent to Waylume for advisor research.");
+      setHandoffMessage("Your trip brief has been sent to Waylume. Your advisor will follow up with the next step.");
       track("ai_advisor_handoff", mode === "full" ? "concierge_full" : "concierge_floating", {
         page: pathname || "/",
         ai: source === "openai",
@@ -303,7 +303,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
                   <Sparkles size={17} />
                   <span>
                     <strong>Send this trip plan to Waylume</strong>
-                    <small>Your conversation becomes a structured advisor brief. Your Waylume advisor then researches current supplier options, availability, and final pricing manually.</small>
+                    <small>Your conversation becomes a structured advisor brief. Your Waylume advisor then researches current options and prepares the appropriate Fora-approved or supplier booking path.</small>
                   </span>
                 </div>
                 <label>Name<input required maxLength={120} value={contact.name} onChange={event => setContact(current => ({ ...current, name: event.target.value }))} placeholder="Your name" /></label>
@@ -338,7 +338,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
               />
               <button type="submit" disabled={!input.trim() || loading} aria-label="Send message"><Send size={18} /></button>
             </form>
-            <small className="ai-disclaimer">Waylume AI shows planning possibilities, not live inventory or prices. Current supplier availability and final pricing are researched and confirmed by your advisor.</small>
+            <small className="ai-disclaimer">Waylume AI shows planning possibilities, not live inventory or prices. Current availability and final pricing are researched by your advisor; secure payment and booking use approved Fora or supplier workflows.</small>
           </div>
         </div>
 
@@ -377,7 +377,7 @@ export default function AiConcierge({ mode = "floating" }: Props) {
             )}
             <div className="ai-human-card">
               <MessageCircle size={20} />
-              <div><strong>AI discovery. Advisor-researched options.</strong><p>When the brief is ready, Waylume uses it to manually research current supplier availability, final pricing, terms, and booking choices.</p></div>
+              <div><strong>AI discovery. Advisor-researched options.</strong><p>When the brief is ready, your advisor uses it to research current options, prepare a proposal, and guide the approved booking path.</p></div>
             </div>
           </aside>
         )}
