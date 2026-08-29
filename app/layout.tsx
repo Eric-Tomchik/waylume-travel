@@ -8,17 +8,21 @@ import "./phase5.css";
 import "./phase6.css";
 import "./brand-fix.css";
 import "./phase8.css";
+import "./inspiration.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.waylumetravel.com"),
   title: {
-    default: "Waylume Travel | AI-Assisted Travel Planning",
+    default: "Waylume Travel | Inspiration, AI Research & Advisor Planning",
     template: "%s | Waylume Travel",
   },
   description:
-    "Plan trips conversationally with Waylume AI, then work with a real travel advisor for current supplier options, pricing, and booking support. Independent Agent of Fora Travel, Inc.",
+    "Explore destinations, cruises, vacation packages, culture, nightlife, and travel stories. Save ideas, research with Waylume AI, then work with a real advisor for current supplier options.",
   openGraph: {
-    title: "Waylume Travel | AI-Assisted Travel Planning",
-    description: "Conversational travel discovery with real advisor follow-through.",
+    title: "Waylume Travel | Ideas first. Your trip follows.",
+    description: "Inspirational travel discovery, AI-assisted research, and real advisor follow-through.",
+    url: "https://www.waylumetravel.com",
+    siteName: "Waylume Travel",
     type: "website",
   },
   robots: { index: true, follow: true },

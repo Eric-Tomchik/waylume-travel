@@ -9,6 +9,12 @@ The product is intentionally designed around **AI discovery + human supplier res
 ### Traveler experience
 
 - Responsive travel-discovery website
+- Inspiration-first editorial homepage for browsing before planning
+- Detailed destination guides covering must-dos, stay ideas, culture, and nightlife
+- Vacation-style discovery for packages, resorts, cruises, and custom journeys
+- Travel journal with destination stories and practical planning guides
+- Device-local inspiration board for saving destinations, articles, and collections
+- Native and direct Facebook, LinkedIn, X, link-copy, and email sharing
 - Destination and promotion discovery
 - Guided Smart Planner
 - Conversational **Waylume AI** concierge

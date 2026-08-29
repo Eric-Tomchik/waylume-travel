@@ -1,118 +1,153 @@
-"use client";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Check, Compass, Globe2, Hotel, Map, Music2, Ship, Sparkles, Utensils, Waves } from "lucide-react";
+import SaveShareActions from "@/components/SaveShareActions";
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
+import TripRequestForm from "@/components/TripRequestForm";
+import { destinations } from "@/lib/destinations";
+import { journalArticles } from "@/lib/journal";
 
-import { useEffect, useState } from "react";
-import { ArrowRight, Check, Compass, Plane, Sparkles, Waves } from "lucide-react";
-import WaylumeLogo from "@/components/WaylumeLogo";
-
-type FormState = {
-  name: string;
-  email: string;
-  destination: string;
-  dates: string;
-  travelers: string;
-  budget: string;
-  tripType: string;
-  notes: string;
-};
-
-const emptyForm: FormState = {
-  name: "",
-  email: "",
-  destination: "",
-  dates: "",
-  travelers: "2",
-  budget: "",
-  tripType: "Vacation Package",
-  notes: "",
-};
+const tripStyles = [
+  { id: "all-inclusive", icon: Hotel, eyebrow: "Stay centered", title: "All-inclusive escapes", description: "Find the resort atmosphere that fits—romantic, family-friendly, wellness-led, lively, or intentionally quiet.", prompt: "Help me explore an all-inclusive vacation" },
+  { id: "cruise", icon: Ship, eyebrow: "Unpack once", title: "Ocean, river & expedition cruises", description: "Compare cruise styles, ship personalities, regions, cabin priorities, and the rhythm of days at sea and in port.", prompt: "Help me choose the right cruise style" },
+  { id: "packages", icon: Waves, eyebrow: "Coordinated ease", title: "Vacation packages", description: "Explore flight, stay, transfer, and experience combinations that can later be researched as one coordinated direction.", prompt: "Show me vacation package ideas" },
+  { id: "custom", icon: Map, eyebrow: "Built around you", title: "Custom journeys", description: "Shape a city, rail, road, island, or multi-stop itinerary around your pace, interests, and ideal level of structure.", prompt: "Help me build a custom itinerary" },
+];
 
 export default function Home() {
-  const [form, setForm] = useState<FormState>(emptyForm);
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-
-  useEffect(() => {
-    const destination = new URLSearchParams(window.location.search).get("destination");
-    if (destination) setForm(current => ({ ...current, destination }));
-  }, []);
-
-  async function submitTrip(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setStatus("loading");
-    try {
-      const response = await fetch("/api/trip-request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (!response.ok) throw new Error("Unable to submit request");
-      setForm(emptyForm);
-      setStatus("success");
-    } catch {
-      setStatus("error");
-    }
-  }
+  const featuredDestinations = destinations.slice(0, 3);
 
   return (
-    <main>
-      <header className="nav shell">
-        <a href="#top" className="brand" aria-label="Waylume Travel home">
-          <WaylumeLogo cropMark className="brand-mark" alt="Waylume Travel" />
-          <span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Fora Travel, Inc.</small></span>
-        </a>
-        <nav>
-          <a href="/concierge">AI Concierge</a><a href="/destinations">Destinations</a><a href="/deals">Promotions</a><a href="/smart-planner">Smart Planner</a><a href="#plan">Plan a Trip</a>
-        </nav>
-        <a className="button small" href="/concierge">Ask Waylume AI</a>
-      </header>
+    <main className="inspiration-site">
+      <SiteHeader />
 
-      <section id="top" className="hero">
-        <div className="shell hero-grid">
+      <section className="inspire-hero">
+        <Image src="/waylume-inspiration-hero.webp" alt="Aspirational coastal, cultural, cruise, and nightlife travel scenery" fill priority sizes="100vw" />
+        <div className="inspire-hero-shade" />
+        <div className="shell inspire-hero-content">
+          <span className="hero-kicker"><Sparkles size={15} /> Ideas first. Your trip follows.</span>
+          <h1>Where will your curiosity take you?</h1>
+          <p>Browse coastlines, cities, cultures, cruises, resorts, and after-dark energy. Save what moves you, share it, then let Waylume AI shape the ideas into a trip brief.</p>
+          <div className="hero-search-card">
+            <div><Compass size={20} /><span><strong>Start with a feeling or a place</strong><small>“Caribbean culture and nightlife” · “first Alaska cruise” · “food-focused Europe”</small></span></div>
+            <Link className="button" href="/concierge">Explore with Waylume AI <ArrowRight size={17} /></Link>
+          </div>
+          <div className="hero-shortcuts">
+            <Link href="/destinations/puerto-rico">Puerto Rico</Link><Link href="/destinations/jamaica">Jamaica</Link><Link href="/destinations/las-vegas">Las Vegas</Link><Link href="/destinations/europe">Europe</Link>
+          </div>
+        </div>
+        <div className="hero-caption">Beaches · Culture · Nightlife · Cruises · Custom journeys</div>
+      </section>
+
+      <section className="inspire-section shell">
+        <div className="editorial-heading">
+          <div><span className="eyebrow">Find your spark</span><h2>A destination is more than a pin on the map.</h2></div>
+          <div><p>See the neighborhoods, culture, must-dos, evening atmosphere, and trip styles that make each place feel different.</p><Link href="/destinations">Explore all destinations <ArrowRight size={16} /></Link></div>
+        </div>
+        <div className="featured-destinations">
+          {featuredDestinations.map((destination, index) => (
+            <article className={`editorial-card tone-${destination.color}`} key={destination.slug}>
+              <div className="card-number">0{index + 1}</div>
+              <div><small>{destination.region}</small><h3>{destination.name}</h3><p>{destination.tagline}</p></div>
+              <div className="tag-row">{destination.bestFor.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}</div>
+              <div className="editorial-card-actions">
+                <Link href={`/destinations/${destination.slug}`}>Discover {destination.name} <ArrowRight size={15} /></Link>
+                <SaveShareActions compact id={`destination:${destination.slug}`} kind="destination" title={destination.name} description={destination.tagline} href={`/destinations/${destination.slug}`} destination={destination.name} />
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="trip-styles" className="inspire-section trip-style-band">
+        <div className="shell">
+          <div className="editorial-heading light">
+            <div><span className="eyebrow">Choose your rhythm</span><h2>One vacation idea. Four completely different ways to live it.</h2></div>
+            <p>Start with the structure that sounds most like you. Waylume can compare the possibilities before a real advisor researches current supplier options.</p>
+          </div>
+          <div className="trip-style-grid">
+            {tripStyles.map((style) => {
+              const Icon = style.icon;
+              return (
+                <article key={style.id}>
+                  <Icon size={25} />
+                  <small>{style.eyebrow}</small>
+                  <h3>{style.title}</h3>
+                  <p>{style.description}</p>
+                  <div><Link href={`/concierge?idea=${encodeURIComponent(style.prompt)}`}>Explore this style <ArrowRight size={15} /></Link><SaveShareActions compact id={`collection:${style.id}`} kind="collection" title={style.title} description={style.description} href={`/#trip-styles`} /></div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="inspire-section shell experience-split">
+        <div className="experience-statement">
+          <span className="eyebrow"><Ship size={15} /> Cruise inspiration</span>
+          <h2>The right cruise starts with how you want the days to feel.</h2>
+          <p>Big-ship energy, intimate river journeys, family fun, refined dining, expedition adventure, or relaxed island hopping—the ship and pace matter as much as the ports.</p>
+          <div className="mini-checks"><span><Check size={15} /> Ocean cruises</span><span><Check size={15} /> River cruises</span><span><Check size={15} /> Expedition styles</span><span><Check size={15} /> Cruise + land stays</span></div>
+          <Link className="button" href="/journal/first-cruise-planning-guide">Read the first-cruise guide <ArrowRight size={16} /></Link>
+        </div>
+        <div className="experience-mosaic">
+          <article><Globe2 /><span>See more places</span><strong>Mediterranean, Caribbean, Alaska, rivers, and beyond.</strong></article>
+          <article><Hotel /><span>Find your ship style</span><strong>Match dining, entertainment, space, and atmosphere to you.</strong></article>
+          <article><Waves /><span>Shape the full trip</span><strong>Add pre-cruise nights, transfers, excursions, and a land extension.</strong></article>
+        </div>
+      </section>
+
+      <section className="inspire-section culture-section">
+        <div className="shell culture-grid">
           <div>
-            <div className="eyebrow"><Sparkles size={16}/> Travel, illuminated.</div>
-            <h1>Find your next <span>unforgettable</span> escape.</h1>
-            <p className="lead">Use Waylume AI to explore what your trip could include—from destinations and hotel styles to flight approaches, cruises, and experiences. When the plan feels right, send the brief to a real advisor for current supplier research and final pricing.</p>
-            <div className="actions"><a className="button" href="/concierge">Explore with Waylume AI <ArrowRight size={18}/></a><a className="ghost" href="/smart-planner">Use guided planner</a></div>
-            <div className="trust"><span><Check/>Conversational trip discovery</span><span><Check/>Advisor-researched supplier options</span><span><Check/>Human booking support</span></div>
+            <span className="eyebrow">Go beyond the postcard</span>
+            <h2>Come for the view. Remember the flavor, the stories, and the night.</h2>
+            <p>Waylume destination guides are designed around the full experience—not only where to sleep. Explore the cultural layer, local food, must-see places, and the kind of evening you want after the sun goes down.</p>
+            <Link href="/destinations">Browse destination guides <ArrowRight size={16} /></Link>
           </div>
-          <div className="hero-card">
-            <div className="orb"><WaylumeLogo cropMark alt="Waylume Travel compass, air and ocean mark" /></div>
-            <div className="floating one">✈ Flight possibilities</div><div className="floating two">✦ Hotel + resort ideas</div><div className="floating three">⚓ Cruise directions</div>
+          <div className="culture-notes">
+            <article><Utensils size={20} /><span><small>Local flavor</small><strong>Markets, neighborhood dining, regional traditions, and food-led experiences.</strong></span></article>
+            <article><Music2 size={20} /><span><small>After dark</small><strong>Live music, lounges, shows, dance, and nightlife that matches your comfort level.</strong></span></article>
+            <article><Compass size={20} /><span><small>Must do + see</small><strong>Iconic sights balanced with the experiences that reveal a place more slowly.</strong></span></article>
           </div>
         </div>
       </section>
 
-      <section id="experiences" className="section shell">
-        <div className="section-head"><div><span className="eyebrow">Explore your way</span><h2>See what is possible before the advisor search begins.</h2></div><p>Start with a conversation or browse on your own. Waylume helps shape the possibilities into a structured trip brief, then your advisor researches current supplier options manually.</p></div>
-        <div className="cards">
-          <article><Sparkles/><h3>AI Concierge</h3><p>Describe your trip naturally and explore possible destinations, stays, transportation, cruises, and experiences without pretending the AI has live rates.</p><a href="/concierge">Start a conversation →</a></article>
-          <article><Plane/><h3>Flights + Stays</h3><p>Explore how a city escape, family trip, or flight-and-hotel itinerary could be structured before current options are researched.</p><a href="#plan">Send trip parameters →</a></article>
-          <article><Waves/><h3>Resorts + Cruises</h3><p>Explore beachfront resorts, all-inclusive styles, ocean cruises, river journeys, and other vacation directions.</p><a href="/destinations">Browse possibilities →</a></article>
-          <article><Compass/><h3>Smart Planner</h3><p>Prefer menus over chat? Use the guided planner to narrow the kind of trip that fits you best.</p><a href="/smart-planner">Match my trip →</a></article>
+      <section className="inspire-section shell">
+        <div className="editorial-heading">
+          <div><span className="eyebrow">The Waylume Journal</span><h2>Ideas worth building a trip around.</h2></div>
+          <div><p>Destination stories, cruise guidance, and practical planning perspectives to help you discover what you actually want.</p><Link href="/journal">Read every story <ArrowRight size={16} /></Link></div>
+        </div>
+        <div className="journal-preview-grid">
+          {journalArticles.slice(0, 3).map((article) => (
+            <article className={`journal-preview tone-${article.color}`} key={article.slug}>
+              <div><small>{article.category} · {article.readTime}</small><h3><Link href={`/journal/${article.slug}`}>{article.title}</Link></h3><p>{article.excerpt}</p></div>
+              <div className="editorial-card-actions"><Link href={`/journal/${article.slug}`}>Read story <ArrowRight size={15} /></Link><SaveShareActions compact id={`article:${article.slug}`} kind="article" title={article.title} description={article.excerpt} href={`/journal/${article.slug}`} destination={article.destination} /></div>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section id="why" className="section band">
-        <div className="shell split"><div><span className="eyebrow">Why Waylume</span><h2>AI for possibilities. A real advisor for supplier research.</h2><p className="lead compact">Use the AI to discover and refine the trip you want. Once your parameters are clear, Waylume manually researches current supplier availability, final pricing, terms, and booking choices.</p></div><div className="benefits"><div><b>01</b><span><strong>Explore naturally</strong><small>Talk through destination, dates, travelers, comfort level, lodging, cruise interests, flights, and experiences in normal conversation.</small></span></div><div><b>02</b><span><strong>Build one clear trip brief</strong><small>Your preferences stay together while the AI suggests possibilities and shows how the itinerary could take shape.</small></span></div><div><b>03</b><span><strong>Advisor researches the real options</strong><small>Waylume uses your completed brief to manually research current supplier availability and final pricing before presenting bookable choices.</small></span></div></div></div>
+      <section className="ai-editorial-band">
+        <div className="shell ai-editorial-grid">
+          <div><span className="eyebrow"><Sparkles size={15} /> Waylume AI research</span><h2>Bring the scattered ideas. Leave with one clear direction.</h2><p>Tell Waylume AI what you saved, what you love, and what you want to avoid. It can compare destinations, cruise styles, lodging directions, and itinerary shapes—then organize the result for human advisor research.</p></div>
+          <div className="ai-steps"><span><b>01</b>Browse and save inspiration</span><span><b>02</b>Explore possibilities with AI</span><span><b>03</b>Send one structured brief</span><span><b>04</b>Advisor researches current options</span></div>
+          <Link className="button" href="/concierge">Start a travel conversation <ArrowRight size={17} /></Link>
+        </div>
       </section>
 
-      <section id="plan" className="section shell plan-grid">
-        <div><span className="eyebrow">Plan my trip</span><h2>Already know what you want? Send the parameters directly.</h2><p className="lead compact">The traditional form sends your trip details into the same Waylume advisor pipeline for manual supplier research and follow-up.</p><div className="notice"><strong>Independent travel advisor disclosure</strong><p>Waylume Travel operates as an Independent Agent of Fora Travel, Inc. Website content is for travel discovery and lead generation. Final supplier availability, pricing, booking terms, and confirmations may vary and are provided at the time of booking.</p></div></div>
-        <form onSubmit={submitTrip} className="trip-form">
-          <label>Name<input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Your name"/></label>
-          <label>Email<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="you@example.com"/></label>
-          <label>Destination<input required value={form.destination} onChange={e=>setForm({...form,destination:e.target.value})} placeholder="Puerto Rico, Caribbean, Europe..."/></label>
-          <label>Travel dates<input value={form.dates} onChange={e=>setForm({...form,dates:e.target.value})} placeholder="Flexible or preferred dates"/></label>
-          <label>Travelers<input value={form.travelers} onChange={e=>setForm({...form,travelers:e.target.value})}/></label>
-          <label>Planning budget<input value={form.budget} onChange={e=>setForm({...form,budget:e.target.value})} placeholder="Optional guidance, e.g. $3,000"/></label>
-          <label>Trip type<select value={form.tripType} onChange={e=>setForm({...form,tripType:e.target.value})}><option>Vacation Package</option><option>Flight + Hotel</option><option>Resort</option><option>Cruise</option><option>Custom Trip</option></select></label>
-          <label className="wide">Anything else?<textarea value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="Celebration, room preferences, departure airport, cruise line preferences..."/></label>
-          <button className="button wide" disabled={status==="loading"}>{status==="loading"?"Sending...":"Send My Trip Request"}<ArrowRight size={18}/></button>
-          {status==="success"&&<p className="success wide">Request received. Your trip details are ready for advisor research.</p>}
-          {status==="error"&&<p className="error wide">We couldn’t send the request yet. Confirm the Convex deployment is configured, then try again.</p>}
-        </form>
+      <section id="plan" className="inspire-section shell plan-grid inspiration-plan">
+        <div>
+          <span className="eyebrow">Ready for advisor research</span>
+          <h2>Already know the direction? Send the details.</h2>
+          <p className="lead compact">Your request enters the Waylume advisor workflow for manual research of current supplier availability, final pricing, booking terms, and relevant choices.</p>
+          <div className="notice"><strong>Discovery content, clearly separated from booking</strong><p>Waylume Travel operates as an Independent Agent of Fora Travel, Inc. Website ideas and AI suggestions are inspirational and are not claims of live inventory, confirmed pricing, or completed reservations.</p></div>
+        </div>
+        <TripRequestForm />
       </section>
 
-      <footer><div className="shell footer"><div className="brand"><WaylumeLogo cropMark className="brand-mark" alt="Waylume Travel"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Fora Travel, Inc.</small></span></div><p>AI-assisted trip discovery with advisor-researched supplier options. <a href="/concierge">AI Concierge</a> · <a href="/destinations">Destinations</a> · <a href="/deals">Promotions</a></p><small>© {new Date().getFullYear()} Waylume Travel. All rights reserved.</small></div></footer>
+      <SiteFooter />
     </main>
   );
 }

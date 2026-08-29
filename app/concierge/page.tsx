@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck, Sparkles } from "lucide-react";
 import AiConcierge from "@/components/AiConcierge";
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "AI Travel Concierge",
@@ -11,6 +13,7 @@ export const metadata: Metadata = {
 export default function ConciergePage() {
   return (
     <main className="concierge-page">
+      <SiteHeader />
       <section className="concierge-intro">
         <div className="shell concierge-intro-inner">
           <div>
@@ -28,6 +31,7 @@ export default function ConciergePage() {
       <section className="shell concierge-workspace">
         <AiConcierge mode="full" />
       </section>
+      <SiteFooter />
     </main>
   );
 }
