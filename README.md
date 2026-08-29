@@ -1,8 +1,8 @@
 # Waylume Travel
 
-**Waylume Travel — Independent Agent of Archer** is an advisor-backed travel discovery and planning platform built with Next.js, TypeScript, Convex, and an optional OpenAI conversational layer.
+**Waylume Travel — Independent Agent of Fora Travel, Inc.** is an advisor-backed travel discovery and planning platform built with Next.js, TypeScript, Convex, and an optional OpenAI conversational layer.
 
-The product is intentionally designed around **AI discovery + human supplier research**. Travelers use Waylume AI to explore what a trip could include, refine their preferences, and create a structured brief. The Waylume advisor then manually researches current supplier availability, final pricing, terms, and booking choices through the applicable Archer / Evolution Travel workflow.
+The product is intentionally designed around **AI discovery + human supplier research**. Travelers use Waylume AI to explore what a trip could include, refine their preferences, and create a structured brief. The Waylume advisor then manually researches current supplier availability, final pricing, terms, and booking choices through the applicable Fora Travel, Inc. workflow.
 
 ## Current capabilities
 
@@ -44,7 +44,7 @@ The product is intentionally designed around **AI discovery + human supplier res
 - Vercel-compatible deployment
 - Cloudflare Workers deployment through OpenNext
 - Server-side secrets only; no provider keys are exposed to the browser
-- Archer independent-agent disclosure language throughout the booking flow
+- Fora Travel independent-agent disclosure language throughout the booking flow
 
 ## Local setup
 
@@ -103,7 +103,7 @@ Convex travelRequests
   ↓
 Advisor workspace
   ↓
-Manual Archer / Evolution supplier research
+Manual Fora Travel supplier research
   ↓
 Current supplier options + final pricing + terms presented to client
 ```

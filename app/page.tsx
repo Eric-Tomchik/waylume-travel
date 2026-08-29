@@ -57,7 +57,7 @@ export default function Home() {
       <header className="nav shell">
         <a href="#top" className="brand" aria-label="Waylume Travel home">
           <WaylumeLogo cropMark className="brand-mark" alt="Waylume Travel" />
-          <span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span>
+          <span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Fora Travel, Inc.</small></span>
         </a>
         <nav>
           <a href="/concierge">AI Concierge</a><a href="/destinations">Destinations</a><a href="/deals">Promotions</a><a href="/smart-planner">Smart Planner</a><a href="#plan">Plan a Trip</a>
@@ -96,7 +96,7 @@ export default function Home() {
       </section>
 
       <section id="plan" className="section shell plan-grid">
-        <div><span className="eyebrow">Plan my trip</span><h2>Already know what you want? Send the parameters directly.</h2><p className="lead compact">The traditional form sends your trip details into the same Waylume advisor pipeline for manual supplier research and follow-up.</p><div className="notice"><strong>Independent travel advisor disclosure</strong><p>Waylume Travel operates as an Independent Agent of Archer. Website content is for travel discovery and lead generation. Final supplier availability, pricing, booking terms, and confirmations may vary and are provided at the time of booking.</p></div></div>
+        <div><span className="eyebrow">Plan my trip</span><h2>Already know what you want? Send the parameters directly.</h2><p className="lead compact">The traditional form sends your trip details into the same Waylume advisor pipeline for manual supplier research and follow-up.</p><div className="notice"><strong>Independent travel advisor disclosure</strong><p>Waylume Travel operates as an Independent Agent of Fora Travel, Inc. Website content is for travel discovery and lead generation. Final supplier availability, pricing, booking terms, and confirmations may vary and are provided at the time of booking.</p></div></div>
         <form onSubmit={submitTrip} className="trip-form">
           <label>Name<input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Your name"/></label>
           <label>Email<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="you@example.com"/></label>
@@ -112,7 +112,7 @@ export default function Home() {
         </form>
       </section>
 
-      <footer><div className="shell footer"><div className="brand"><WaylumeLogo cropMark className="brand-mark" alt="Waylume Travel"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Archer</small></span></div><p>AI-assisted trip discovery with advisor-researched supplier options. <a href="/concierge">AI Concierge</a> · <a href="/destinations">Destinations</a> · <a href="/deals">Promotions</a></p><small>© {new Date().getFullYear()} Waylume Travel. All rights reserved.</small></div></footer>
+      <footer><div className="shell footer"><div className="brand"><WaylumeLogo cropMark className="brand-mark" alt="Waylume Travel"/><span><strong>WAYLUME</strong> <em>TRAVEL</em><small>Independent Agent of Fora Travel, Inc.</small></span></div><p>AI-assisted trip discovery with advisor-researched supplier options. <a href="/concierge">AI Concierge</a> · <a href="/destinations">Destinations</a> · <a href="/deals">Promotions</a></p><small>© {new Date().getFullYear()} Waylume Travel. All rights reserved.</small></div></footer>
     </main>
   );
 }
