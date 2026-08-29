@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type Props = {
   className?: string;
   alt?: string;
@@ -5,5 +7,5 @@ type Props = {
 };
 
 export default function WaylumeLogo({ className = "", alt = "Waylume Travel" }: Props) {
-  return <img src="/waylume-mark.webp" alt={alt} className={className} />;
+  return <Image src="/waylume-mark.webp" width={220} height={220} alt={alt} className={className} />;
 }

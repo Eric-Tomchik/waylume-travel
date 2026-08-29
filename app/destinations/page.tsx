@@ -1,35 +1,49 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Compass, ArrowRight } from "lucide-react";
+import { ArrowRight, Compass, MapPinned, MoonStar, Sparkles } from "lucide-react";
+import SaveShareActions from "@/components/SaveShareActions";
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
 import { destinations } from "@/lib/destinations";
+
+export const metadata: Metadata = {
+  title: "Destination Inspiration",
+  description: "Explore Waylume destination guides with culture, nightlife, must-dos, stay ideas, and vacation styles before requesting current advisor-researched options.",
+};
 
 export default function DestinationsPage() {
   return (
-    <main>
-      <section className="subhero">
+    <main className="inspiration-site">
+      <SiteHeader />
+      <section className="editorial-subhero">
         <div className="shell">
-          <Link className="back-link" href="/">← Waylume Travel</Link>
-          <span className="eyebrow"><Compass size={16}/> Destination discovery</span>
-          <h1>Start with a place. Build around the experience.</h1>
-          <p className="lead">Browse a few high-interest starting points, then send Waylume the details that matter to you. These are inspiration categories—not live supplier pricing.</p>
+          <span className="eyebrow"><Compass size={15} /> Destination inspiration</span>
+          <h1>Start with a place.<br />Discover how it could feel.</h1>
+          <p>Browse more than flights and hotels. Explore the culture, food, nightlife, must-dos, stay styles, and trip shapes that can make a destination right for you.</p>
+          <div className="subhero-points"><span><MapPinned size={16} /> Must-dos and stay ideas</span><span><MoonStar size={16} /> Culture and nightlife</span><span><Sparkles size={16} /> AI-assisted exploration</span></div>
         </div>
       </section>
-      <section className="section shell">
-        <div className="destination-grid">
-          {destinations.map((destination) => (
-            <article className="destination-card" key={destination.slug}>
-              <span>{destination.region}</span>
-              <h2>{destination.name}</h2>
-              <strong>{destination.tagline}</strong>
-              <p>{destination.description}</p>
-              <div className="tag-row">{destination.bestFor.map((tag) => <small key={tag}>{tag}</small>)}</div>
-              <div className="card-actions">
-                <Link href={`/destinations/${destination.slug}`}>Explore destination <ArrowRight size={15}/></Link>
-                <Link href={`/?destination=${encodeURIComponent(destination.name)}#plan`}>Plan this trip</Link>
+
+      <section className="inspire-section shell">
+        <div className="destination-discovery-grid">
+          {destinations.map((destination, index) => (
+            <article className={`destination-discovery-card tone-${destination.color}`} key={destination.slug}>
+              <div className="destination-card-top"><span>{destination.region}</span><b>{String(index + 1).padStart(2, "0")}</b></div>
+              <div><h2><Link href={`/destinations/${destination.slug}`}>{destination.name}</Link></h2><strong>{destination.tagline}</strong><p>{destination.description}</p></div>
+              <div className="tag-row">{destination.bestFor.map((tag) => <span key={tag}>{tag}</span>)}</div>
+              <div className="destination-card-bottom">
+                <Link href={`/destinations/${destination.slug}`}>Open destination guide <ArrowRight size={15} /></Link>
+                <SaveShareActions compact id={`destination:${destination.slug}`} kind="destination" title={destination.name} description={destination.tagline} href={`/destinations/${destination.slug}`} destination={destination.name} />
               </div>
             </article>
           ))}
         </div>
       </section>
+
+      <section className="destination-ai-cta">
+        <div className="shell"><div><span className="eyebrow"><Sparkles size={15} /> Somewhere else in mind?</span><h2>Ask about any destination.</h2><p>Waylume AI can help you explore places not yet featured in the journal and organize the possibilities for advisor research.</p></div><Link className="button" href="/concierge">Describe my trip idea <ArrowRight size={16} /></Link></div>
+      </section>
+      <SiteFooter />
     </main>
   );
 }

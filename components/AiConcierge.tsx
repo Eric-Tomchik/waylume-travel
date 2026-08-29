@@ -102,6 +102,8 @@ export default function AiConcierge({ mode = "floating" }: Props) {
         setReadyForAdvisor(Boolean(parsed.readyForAdvisor));
         if (parsed.source === "openai") setSource("openai");
       }
+      const idea = new URLSearchParams(window.location.search).get("idea");
+      if (idea) setInput(idea.slice(0, 1200));
     } catch {
       // Session persistence is optional.
     } finally {
