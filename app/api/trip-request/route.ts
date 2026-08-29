@@ -6,9 +6,14 @@ export async function POST(request: Request) {
   const contentLength = Number(request.headers.get("content-length") || 0);
   if (contentLength > 32768) return NextResponse.json({ error: "Request too large" }, { status: 413 });
 
-  const configuredOrigin = process.env.WAYLUME_SITE_ORIGIN;
+  const allowedOrigins = (process.env.WAYLUME_SITE_ORIGIN ?? "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
   const origin = request.headers.get("origin");
-  if (configuredOrigin && origin && origin !== configuredOrigin) return NextResponse.json({ error: "Origin not allowed" }, { status: 403 });
+  if (allowedOrigins.length > 0 && origin && !allowedOrigins.includes(origin)) {
+    return NextResponse.json({ error: "Origin not allowed" }, { status: 403 });
+  }
 
   const rate = allowRequest(requestFingerprint(request));
   if (!rate.allowed) return NextResponse.json({ error: "Too many requests. Please try again shortly." }, { status: 429, headers: { "Retry-After": String(rate.retryAfter) } });
