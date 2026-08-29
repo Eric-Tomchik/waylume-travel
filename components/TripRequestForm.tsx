@@ -61,8 +61,9 @@ export default function TripRequestForm() {
       <label>Planning budget<input value={form.budget} onChange={(event) => setForm({ ...form, budget: event.target.value })} placeholder="Optional planning guidance" /></label>
       <label>Trip type<select value={form.tripType} onChange={(event) => setForm({ ...form, tripType: event.target.value })}><option>Vacation Package</option><option>Flight + Hotel</option><option>All-Inclusive Resort</option><option>Cruise</option><option>Custom Trip</option></select></label>
       <label className="wide">What should the trip feel like?<textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Celebration, pace, culture, nightlife, room preferences, departure airport, cruise style..." /></label>
-      <button className="button wide" disabled={status === "loading"}>{status === "loading" ? "Sending..." : "Send for Advisor Research"}<ArrowRight size={18} /></button>
-      {status === "success" && <p className="success wide" role="status">Your trip direction is ready for Waylume advisor research.</p>}
+      <button className="button wide" disabled={status === "loading"}>{status === "loading" ? "Sending..." : "Request Personalized Options"}<ArrowRight size={18} /></button>
+      <small className="form-booking-note wide">A Waylume advisor will research your request through Fora-approved and supplier systems. Please do not enter payment information here.</small>
+      {status === "success" && <p className="success wide" role="status">Your request is with Waylume. Your advisor will follow up with the next step.</p>}
       {status === "error" && <p className="error wide" role="alert">We could not send the request yet. Please try again shortly.</p>}
     </form>
   );

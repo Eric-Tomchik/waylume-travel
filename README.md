@@ -1,6 +1,6 @@
 # Waylume Travel
 
-**Waylume Travel — Independent Agent of Fora Travel, Inc.** is an advisor-backed travel discovery and planning platform built with Next.js, TypeScript, Convex, and an optional OpenAI conversational layer.
+**Waylume Travel — Independent Advisor of Fora Travel, Inc.** is an advisor-backed travel discovery and planning platform built with Next.js, TypeScript, Convex, and an optional OpenAI conversational layer.
 
 The product is intentionally designed around **AI discovery + human supplier research**. Travelers use Waylume AI to explore what a trip could include, refine their preferences, and create a structured brief. The Waylume advisor then manually researches current supplier availability, final pricing, terms, and booking choices through the applicable Fora Travel, Inc. workflow.
 
@@ -13,6 +13,7 @@ The product is intentionally designed around **AI discovery + human supplier res
 - Detailed destination guides covering must-dos, stay ideas, culture, and nightlife
 - Vacation-style discovery for packages, resorts, cruises, and custom journeys
 - Travel journal with destination stories and practical planning guides
+- Transparent `/how-booking-works` journey from inspiration to secure advisor booking
 - Device-local inspiration board for saving destinations, articles, and collections
 - Native and direct Facebook, LinkedIn, X, link-copy, and email sharing
 - Destination and promotion discovery
@@ -47,10 +48,10 @@ The product is intentionally designed around **AI discovery + human supplier res
 - Next.js 15 + React 19 + TypeScript
 - Convex application data/backend
 - GitHub Actions typecheck/build CI
-- Vercel-compatible deployment
 - Cloudflare Workers deployment through OpenNext
+- Cloudflare-specific bundle and Wrangler dry-run checks in CI
 - Server-side secrets only; no provider keys are exposed to the browser
-- Fora Travel independent-agent disclosure language throughout the booking flow
+- Fora Travel independent-advisor disclosure language throughout the booking flow
 
 ## Local setup
 
@@ -151,8 +152,8 @@ Final supplier availability, final pricing, payment requirements, booking terms,
 ## Production deployment
 
 1. Deploy/update the Convex functions.
-2. Set the required Convex and Waylume secrets in the web host and Convex environments.
-3. Deploy the Next.js application to Vercel or Cloudflare Workers.
+2. Set the required Convex and Waylume secrets in the Cloudflare Worker and Convex environments.
+3. Deploy the Next.js application to Cloudflare Workers.
 4. Add `OPENAI_API_KEY` only when you want the concierge to use the live AI provider; the demo engine works without it.
 5. Set `WAYLUME_SITE_ORIGIN` to the final HTTPS origin when the production domain is assigned.
 6. Test the complete path: concierge → advisor handoff → `/admin` → manual supplier research → quote/itinerary → traveler portal.

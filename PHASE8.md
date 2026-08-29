@@ -6,7 +6,7 @@ Phase 8 makes conversational trip discovery a first-class Waylume experience whi
 
 Waylume AI is the **discovery and qualification layer**. It helps the traveler understand what a trip could include and collects useful trip parameters.
 
-The Waylume advisor is the **supplier research and booking layer**. After the client sends the trip brief, the advisor manually researches current options, availability, final pricing, terms, and booking choices through the applicable Archer / Evolution Travel supplier workflow.
+The Waylume advisor is the **supplier research and booking layer**. After the client sends the trip brief, the advisor researches current options, availability, final pricing, terms, and booking choices through Fora-approved and supplier workflows.
 
 ```text
 AI discovery → structured trip brief → advisor supplier research → client options → booking
@@ -67,7 +67,7 @@ Without `OPENAI_API_KEY`, the public demo remains conversational and usable, but
 ## Production checklist
 
 1. Merge Phase 8 only after CI typecheck/build passes.
-2. Let Vercel/Cloudflare deploy the merged `main` branch.
+2. Let Cloudflare deploy the merged `main` branch.
 3. Deploy the updated Convex analytics function and ensure `WAYLUME_INTAKE_SECRET` matches between the web host and Convex.
 4. Verify `/concierge` works with no API key first.
 5. Add `OPENAI_API_KEY` to the production host when live AI is desired.
