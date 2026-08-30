@@ -117,14 +117,16 @@ header.nav {
   position: sticky;
   top: 0;
   z-index: 60;
-  background: rgba(3, 14, 24, 0.72);
+  /* Lighter than the page so the logo's navy artwork stays legible. */
+  background: linear-gradient(180deg, rgba(41, 96, 133, 0.95), rgba(24, 68, 99, 0.92));
   backdrop-filter: blur(16px) saturate(140%);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(127, 233, 240, 0.22);
+  box-shadow: 0 10px 30px rgba(3, 14, 24, 0.45);
 }
 .nav-in { display: flex; align-items: center; justify-content: space-between; height: 78px; gap: 24px; }
-.brand img.logo { height: 54px; width: auto; }
+.brand img.logo { height: 60px; width: auto; filter: drop-shadow(0 2px 10px rgba(47, 211, 227, 0.35)); }
 nav.links { display: flex; gap: 28px; font-size: 14px; font-weight: 500; }
-nav.links a { padding: 6px 0; color: #C7DCE5; position: relative; }
+nav.links a { padding: 6px 0; color: #DCEDF3; position: relative; }
 nav.links a::after {
   content: "";
   position: absolute;
