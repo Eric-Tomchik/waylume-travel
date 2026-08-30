@@ -50,7 +50,7 @@ export default function PromotionsPage() {
             <Reveal key={offer.title} delay={index * 80}>
             <Link
               className="promo"
-              href={`/plan?destination=${encodeURIComponent(offer.title)}`}
+              href={`/contact?destination=${encodeURIComponent(offer.title)}`}
               style={{ minHeight: 400, height: "100%" }}
             >
               <div className="ph" style={{ backgroundImage: `url('/photos/${offer.slot}.webp')` }} />

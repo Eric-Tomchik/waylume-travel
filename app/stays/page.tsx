@@ -49,7 +49,7 @@ export default function StaysPage() {
                   <p>{stay.copy}</p>
                   <div className="meta">
                     <span>Preferred-partner perks</span>
-                    <Link href={`/plan?destination=${encodeURIComponent(stay.title)}`}><b>Ask me to price it →</b></Link>
+                    <Link href={`/contact?destination=${encodeURIComponent(stay.title)}`}><b>Ask me to price it →</b></Link>
                   </div>
                 </div>
               </div>
@@ -83,7 +83,7 @@ export default function StaysPage() {
                 late checkout, and a VIP note on the reservation so the front desk knows who you are.
               </p>
               <div style={{ marginTop: 26 }}>
-                <Link className="btn" href="/plan">Ask about a specific hotel</Link>
+                <Link className="btn" href="/contact">Ask about a specific hotel</Link>
               </div>
             </div>
           </Reveal>

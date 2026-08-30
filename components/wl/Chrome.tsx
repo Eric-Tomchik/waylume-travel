@@ -9,6 +9,7 @@ const NAV = [
   { href: "/promotions", label: "Promotions" },
   { href: "/journal", label: "Travel News" },
   { href: "/know-before-you-go", label: "Know Before You Go" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function SiteHeader() {
@@ -31,7 +32,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Link className="btn sm" href="/plan">Plan a trip</Link>
+          <Link className="btn sm" href="/contact">Plan a trip</Link>
           <details className="mobile-nav">
             <summary aria-label="Open navigation">☰</summary>
             <nav aria-label="Mobile">
@@ -60,7 +61,7 @@ export function CtaBand() {
           phone. Tell me the idea and I&apos;ll take it from there.
         </p>
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link className="btn" href="/plan">Plan a trip</Link>
+          <Link className="btn" href="/contact">Plan a trip</Link>
           <a className="btn ghost" href="mailto:advisor@waylumetravel.com">advisor@waylumetravel.com</a>
         </div>
       </div>
@@ -103,7 +104,7 @@ export function SiteFooter() {
             <h4>Contact</h4>
             <a href="mailto:eric.tomchik@fora.travel">eric.tomchik@fora.travel</a>
             <a href="mailto:advisor@waylumetravel.com">advisor@waylumetravel.com</a>
-            <Link href="/plan">Plan a trip</Link>
+            <Link href="/contact">Contact me</Link>
           </div>
         </div>
 

@@ -1,6 +1,11 @@
 export type TripRequestPayload = {
   name: string;
   email: string;
+  phone?: string;
+  contactPreference?: string;
+  bestTime?: string;
+  heardAbout?: string;
+  marketingOptIn?: boolean;
   destination: string;
   dates?: string;
   travelers: string;
@@ -24,6 +29,11 @@ export function validateTripRequest(input: unknown) {
   const payload: TripRequestPayload = {
     name: clean(body.name, 100),
     email: clean(body.email, 254).toLowerCase(),
+    phone: clean(body.phone, 40) || undefined,
+    contactPreference: clean(body.contactPreference, 20) || undefined,
+    bestTime: clean(body.bestTime, 40) || undefined,
+    heardAbout: clean(body.heardAbout, 60) || undefined,
+    marketingOptIn: body.marketingOptIn === true || undefined,
     destination: clean(body.destination, 120),
     dates: clean(body.dates, 100) || undefined,
     travelers: clean(body.travelers, 20) || "2",

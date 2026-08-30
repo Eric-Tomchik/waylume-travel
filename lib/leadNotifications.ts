@@ -5,6 +5,11 @@ import { HOST_AGENCY } from "@/lib/hostAgency";
 export type LeadPayload = {
   name: string;
   email: string;
+  phone?: string;
+  contactPreference?: string;
+  bestTime?: string;
+  heardAbout?: string;
+  marketingOptIn?: boolean;
   destination: string;
   dates?: string;
   travelers?: string;
@@ -17,6 +22,11 @@ function advisorBody(lead: LeadPayload) {
   const rows: Array<[string, string | undefined]> = [
     ["Name", lead.name],
     ["Email", lead.email],
+    ["Phone", lead.phone],
+    ["Prefers", lead.contactPreference],
+    ["Best time to reach", lead.bestTime],
+    ["Heard about me via", lead.heardAbout],
+    ["Marketing opt-in", lead.marketingOptIn ? "Yes" : undefined],
     ["Destination", lead.destination],
     ["Travel dates", lead.dates],
     ["Travelers", lead.travelers],

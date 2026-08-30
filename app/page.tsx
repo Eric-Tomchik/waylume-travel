@@ -46,7 +46,7 @@ export default function HomePage() {
             booking site.
           </p>
           <div className="hero-cta">
-            <Link className="btn" href="/plan">Start with a conversation</Link>
+            <Link className="btn" href="/contact">Start with a conversation</Link>
             <Link className="play" href="#finder"><i>▾</i> Find where to go</Link>
           </div>
         </div>

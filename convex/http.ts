@@ -30,6 +30,11 @@ http.route({ path: "/trip-request", method: "POST", handler: httpAction(async (c
     if (!name || !email || !destination || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return new Response(JSON.stringify({ error: "Valid name, email, and destination are required." }), { status: 400, headers: jsonHeaders });
     const id = await ctx.runMutation(internal.travelRequests.create, {
       name, email, destination,
+      phone: body.phone ? String(body.phone).trim().slice(0, 40) : undefined,
+      contactPreference: body.contactPreference ? String(body.contactPreference).trim().slice(0, 20) : undefined,
+      bestTime: body.bestTime ? String(body.bestTime).trim().slice(0, 40) : undefined,
+      heardAbout: body.heardAbout ? String(body.heardAbout).trim().slice(0, 60) : undefined,
+      marketingOptIn: body.marketingOptIn === true ? true : undefined,
       dates: body.dates ? String(body.dates).trim().slice(0, 100) : undefined,
       travelers: body.travelers ? String(body.travelers).trim().slice(0, 20) : "2",
       budget: body.budget ? String(body.budget).trim().slice(0, 50) : undefined,
