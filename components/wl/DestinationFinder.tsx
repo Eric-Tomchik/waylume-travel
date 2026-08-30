@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { HeartButton } from "@/components/wl/Interactive";
 import {
-  DESTINATIONS, MONTH_LABELS, REGIONS, SEASONS, VIBES,
+  destinations as DESTINATIONS, MONTH_LABELS, REGIONS, SEASONS, VIBES,
   type Season, type Vibe,
-} from "@/lib/destinationFinder";
+} from "@/lib/destinations";
 
 type Region = (typeof REGIONS)[number];
 
@@ -111,8 +111,8 @@ export default function DestinationFinder() {
           {results.map((destination) => (
             <div className="card" key={destination.name}>
               <HeartButton name={destination.name} />
-              <Link href={`/contact?destination=${encodeURIComponent(destination.name)}`} style={{ display: "contents" }}>
-                <div className="ph" style={{ backgroundImage: `url('/photos/${destination.slot}.webp')` }}>
+              <Link href={`/destinations/${destination.slug}`} style={{ display: "contents" }}>
+                <div className="ph" style={{ backgroundImage: `url('/photos/${destination.photo}.webp')` }}>
                   <span className="tag">{destination.region}</span>
                 </div>
                 <div className="bd">
@@ -122,7 +122,7 @@ export default function DestinationFinder() {
                   <Seasonality months={destination.months} />
                   <div className="meta">
                     <span>{bestMonths(destination.months)}</span>
-                    <b>Ask about this →</b>
+                    <b>Explore {destination.name} →</b>
                   </div>
                 </div>
               </Link>

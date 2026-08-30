@@ -475,3 +475,56 @@ section.pad.sand + section.pad.sand { padding-top: 0; }
 .consent input { width: 18px; height: 18px; accent-color: var(--aqua); margin-top: 2px; flex: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 1000px) { .contact-hero { grid-template-columns: 1fr; gap: 34px; } }
+
+/* ---------- destination detail pages ---------- */
+.dest-hero { position: relative; padding: 150px 0 68px; overflow: hidden; }
+.dest-hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.72; transform: scale(1.04); }
+.dest-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3,14,24,0.55), rgba(3,14,24,0.82) 58%, var(--abyss)); }
+.dest-hero-in { position: relative; z-index: 2; }
+.dest-crumb { display: flex; align-items: center; gap: 14px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 800; color: var(--aqua-soft); }
+.dest-crumb span { color: var(--muted); }
+.dest-hero h1 { font-size: clamp(44px, 7vw, 86px); line-height: 0.98; margin: 18px 0 16px; }
+.dest-hero .lead { max-width: 46ch; font-size: 18px; }
+.dest-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 28px; }
+.dest-tags span { padding: 7px 13px; border-radius: 99px; border: 1px solid rgba(127,233,240,0.28); background: rgba(11,37,54,0.6); font-size: 11.5px; font-weight: 700; color: var(--foam); }
+.dest-hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.dest-h2 { font-size: clamp(21px, 2.5vw, 30px); line-height: 1.4; font-weight: 400; margin: 14px 0 0; color: var(--text); }
+.dest-h3 { font-size: clamp(26px, 3vw, 36px); margin: 12px 0 20px; }
+
+.dest-timing { padding: 26px 28px; border: 1px solid var(--line); border-radius: 18px; background: rgba(11,37,54,0.55); }
+.dest-timing .season { margin-top: 16px; }
+.dest-timing .season span { height: 10px; }
+.dest-prime { margin: 16px 0 6px; font-size: 13px; color: var(--muted); }
+.dest-prime b { color: var(--aqua-soft); }
+.dest-note { margin: 0; font-size: 13.5px; line-height: 1.65; color: var(--foam); }
+
+.dest-musts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.dest-musts article { height: 100%; padding: 28px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(160deg, rgba(11,37,54,0.75), rgba(6,27,42,0.5)); }
+.dest-musts b { font-size: 13px; letter-spacing: 0.14em; color: var(--aqua); }
+.dest-musts h3 { font-size: 21px; margin: 12px 0 10px; }
+.dest-musts p { margin: 0; color: var(--muted); line-height: 1.7; font-size: 14px; }
+
+.dest-panel { padding: 30px; border: 1px solid var(--line); border-radius: 18px; background: rgba(6,27,42,0.55); height: 100%; }
+.dest-panel h3 { font-size: 25px; margin: 12px 0 12px; }
+.dest-panel p { margin: 0; color: var(--muted); line-height: 1.75; }
+
+.dest-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); counter-reset: dest; }
+.dest-list li { counter-increment: dest; display: flex; gap: 14px; padding: 15px 4px; border-bottom: 1px solid var(--line); font-size: 14.5px; color: var(--text); }
+.dest-list li::before { content: "0" counter(dest); color: var(--aqua); font-weight: 800; font-size: 12px; padding-top: 3px; }
+
+.dest-advisor { padding: 34px 38px; border: 1px solid rgba(127,233,240,0.28); border-radius: 20px; background: linear-gradient(135deg, rgba(20,162,184,0.16), rgba(10,42,74,0.5)); }
+.dest-advisor p { font-size: 17px; line-height: 1.7; margin: 14px 0 22px; max-width: 70ch; color: var(--text); }
+.dest-advisor-actions { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.dest-advisor-actions a:not(.btn) { font-size: 12.5px; font-weight: 700; color: var(--aqua-soft); }
+
+.dest-cta { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 50px; align-items: center; padding: 40px; border: 1px solid var(--line); border-radius: 20px; background: rgba(11,37,54,0.5); }
+.dest-cta h2 { font-size: clamp(28px, 3.4vw, 42px); margin: 12px 0 14px; }
+.dest-cta .lead { margin-bottom: 0; }
+.dest-cta-actions { display: flex; flex-direction: column; gap: 12px; align-items: stretch; text-align: center; }
+
+@media (max-width: 900px) {
+  .dest-hero { padding: 120px 0 52px; }
+  .dest-musts { grid-template-columns: 1fr; }
+  .dest-cta { grid-template-columns: 1fr; gap: 28px; padding: 30px; }
+}
