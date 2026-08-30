@@ -1,177 +1,189 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, Compass, FileCheck2, Globe2, Hotel, Map, MessageSquareText, Music2, SearchCheck, ShieldCheck, Ship, Sparkles, Utensils, Waves } from "lucide-react";
-import SaveShareActions from "@/components/SaveShareActions";
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
-import TripRequestForm from "@/components/TripRequestForm";
-import { destinations } from "@/lib/destinations";
-import { HOST_AGENCY } from "@/lib/hostAgency";
-import { journalArticles } from "@/lib/journal";
+import MarketingShell from "@/components/wl/MarketingShell";
+import { NewsWire } from "@/components/wl/Live";
 
-const tripStyles = [
-  { id: "all-inclusive", icon: Hotel, eyebrow: "Stay centered", title: "All-inclusive escapes", description: "Find the resort atmosphere that fits—romantic, family-friendly, wellness-led, lively, or intentionally quiet.", prompt: "Help me explore an all-inclusive vacation" },
-  { id: "cruise", icon: Ship, eyebrow: "Unpack once", title: "Ocean, river & expedition cruises", description: "Compare cruise styles, ship personalities, regions, cabin priorities, and the rhythm of days at sea and in port.", prompt: "Help me choose the right cruise style" },
-  { id: "packages", icon: Waves, eyebrow: "Coordinated ease", title: "Vacation packages", description: "Explore flight, stay, transfer, and experience combinations that can later be researched as one coordinated direction.", prompt: "Show me vacation package ideas" },
-  { id: "custom", icon: Map, eyebrow: "Built around you", title: "Custom journeys", description: "Shape a city, rail, road, island, or multi-stop itinerary around your pace, interests, and ideal level of structure.", prompt: "Help me build a custom itinerary" },
+export const revalidate = 3600;
+
+const DESTINATIONS = [
+  { slot: "italy", tag: "Fallcation", title: "Amalfi & Puglia", copy: "September now outsells August on the coast — same light, half the crowds, better tables.", when: "Sep–Oct" },
+  { slot: "japan", tag: "Trending", title: "Japan, beyond Tokyo", copy: "Kyoto in maple season, plus the Setouchi islands and Kyushu ryokans most travelers miss.", when: "Nov · Apr" },
+  { slot: "safari", tag: "Bucket list", title: "Tanzania & Kenya", copy: "Green-season camps at a third of migration pricing, with the same guides.", when: "Jan–Mar" },
+  { slot: "maldives", tag: "Honeymoon", title: "Maldives", copy: "Bulgari's first island resort lands in Raa Atoll in 2027. Waitlists open now.", when: "Year-round" },
 ];
 
-export default function Home() {
-  const featuredDestinations = destinations.slice(0, 3);
+const PROMOS = [
+  { slot: "cruise", pill: "Cruise · Book by Oct 31", title: "Fjords & Northern Lights", copy: "Small-ship Norway sailings with veranda upgrade and onboard credit when I book it." },
+  { slot: "suite", pill: "Hotel perks · Always on", title: "Fora Preferred Partner rates", copy: "Daily breakfast for two, property credit, upgrade at check-in, late checkout." },
+  { slot: "greece", pill: "Villas · Summer 2027", title: "Greek isles, early-bird", copy: "Lock pricing early — Greek island rates have been climbing hard for two seasons." },
+];
 
+const STAYS = [
+  { slot: "maldives", tag: "Maldives", title: "Overwater, done right", stars: "★★★★★", score: "9.4 · Romance", copy: "Raa & Baa Atoll picks where the house reef actually delivers." },
+  { slot: "suite", tag: "Dubai", title: "Six Senses The Palm", stars: "★★★★★", score: "9.2 · Wellness", copy: "All-suite beachfront debut, 60,000 sq ft wellness club, from $1,500/night." },
+  { slot: "safari", tag: "Tanzania", title: "Tented camps, Serengeti", stars: "★★★★☆", score: "9.0 · Adventure", copy: "Mobile camps that follow the herds instead of watching them leave." },
+];
+
+export default function HomePage() {
   return (
-    <main className="inspiration-site">
-      <SiteHeader />
-
-      <section className="inspire-hero">
-        <Image src="/waylume-inspiration-hero.webp" alt="Aspirational coastal, cultural, cruise, and nightlife travel scenery" fill priority sizes="100vw" />
-        <div className="inspire-hero-shade" />
-        <div className="shell inspire-hero-content">
-          <span className="hero-kicker"><Sparkles size={15} /> Ideas first. Your trip follows.</span>
-          <h1>Where will your curiosity take you?</h1>
-          <p>Browse coastlines, cities, cultures, cruises, resorts, and after-dark energy. Save what moves you, share it, then let Waylume AI shape the ideas into a trip brief.</p>
-          <div className="hero-search-card">
-            <div><Compass size={20} /><span><strong>Start with a feeling or a place</strong><small>“Caribbean culture and nightlife” · “first Alaska cruise” · “food-focused Europe”</small></span></div>
-            <Link className="button" href="/concierge">Explore with Waylume AI <ArrowRight size={17} /></Link>
+    <MarketingShell>
+      <section className="hero">
+        <div className="bg" style={{ backgroundImage: "url('/photos/hero.webp')" }} />
+        <div className="hero-in">
+          <div className="eyebrow" style={{ color: "var(--brass-lt)" }}>Waylume Travel · Independent advisor</div>
+          <h1>The trip you keep <em>almost</em> booking.</h1>
+          <p>
+            I&apos;m Eric Tomchik — a travel advisor with Fora Travel. I turn the idea you&apos;ve been
+            circling for two years into a booked, well-priced, properly-planned journey, with perks you
+            can&apos;t get on a booking site.
+          </p>
+          <div className="hero-cta">
+            <Link className="btn light" href="/plan">Start with a conversation</Link>
+            <Link className="play" href="/destinations"><i>▶</i> See where I&apos;m sending people</Link>
           </div>
-          <div className="hero-shortcuts">
-            <Link href="/destinations/puerto-rico">Puerto Rico</Link><Link href="/destinations/jamaica">Jamaica</Link><Link href="/destinations/las-vegas">Las Vegas</Link><Link href="/destinations/europe">Europe</Link>
-          </div>
-        </div>
-        <div className="hero-caption">Beaches · Culture · Nightlife · Cruises · Custom journeys</div>
-      </section>
-
-      <section className="inspire-section shell">
-        <div className="editorial-heading">
-          <div><span className="eyebrow">Find your spark</span><h2>A destination is more than a pin on the map.</h2></div>
-          <div><p>See the neighborhoods, culture, must-dos, evening atmosphere, and trip styles that make each place feel different.</p><Link href="/destinations">Explore all destinations <ArrowRight size={16} /></Link></div>
-        </div>
-        <div className="featured-destinations">
-          {featuredDestinations.map((destination, index) => (
-            <article className={`editorial-card tone-${destination.color}`} key={destination.slug}>
-              <div className="card-number">0{index + 1}</div>
-              <div><small>{destination.region}</small><h3>{destination.name}</h3><p>{destination.tagline}</p></div>
-              <div className="tag-row">{destination.bestFor.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}</div>
-              <div className="editorial-card-actions">
-                <Link href={`/destinations/${destination.slug}`}>Discover {destination.name} <ArrowRight size={15} /></Link>
-                <SaveShareActions compact id={`destination:${destination.slug}`} kind="destination" title={destination.name} description={destination.tagline} href={`/destinations/${destination.slug}`} destination={destination.name} />
-              </div>
-            </article>
-          ))}
         </div>
       </section>
 
-      <section id="trip-styles" className="inspire-section trip-style-band">
+      <div className="hero-strip">
         <div className="shell">
-          <div className="editorial-heading light">
-            <div><span className="eyebrow">Choose your rhythm</span><h2>One vacation idea. Four completely different ways to live it.</h2></div>
-            <p>Start with the structure that sounds most like you. Waylume can compare the possibilities before a real advisor researches current supplier options.</p>
+          <div><b>Free</b><span>My planning costs you nothing</span></div>
+          <div><b>$1,653</b><span>avg. luxury hotel night in 2026 — spend it well</span></div>
+          <div><b>+21%</b><span>luxury travel growth this year</span></div>
+          <div><b>24/7</b><span>a real person while you&apos;re away</span></div>
+        </div>
+      </div>
+
+      <section className="pad">
+        <div className="shell">
+          <div className="sec-head">
+            <div>
+              <div className="eyebrow">Where to go now</div>
+              <h2>Destinations worth<br />the flight in 2026–27</h2>
+            </div>
+            <p className="lead">
+              Fall has become the headline season — autumn bookings are up 59% year over year. These are
+              the places I&apos;m sending clients right now, and why the timing matters.
+            </p>
           </div>
-          <div className="trip-style-grid">
-            {tripStyles.map((style) => {
-              const Icon = style.icon;
-              return (
-                <article key={style.id}>
-                  <Icon size={25} />
-                  <small>{style.eyebrow}</small>
-                  <h3>{style.title}</h3>
-                  <p>{style.description}</p>
-                  <div><Link href={`/concierge?idea=${encodeURIComponent(style.prompt)}`}>Explore this style <ArrowRight size={15} /></Link><SaveShareActions compact id={`collection:${style.id}`} kind="collection" title={style.title} description={style.description} href={`/#trip-styles`} /></div>
-                </article>
-              );
-            })}
+          <div className="grid g4">
+            {DESTINATIONS.map((item) => (
+              <Link className="card" href="/destinations" key={item.title}>
+                <div className="ph" style={{ backgroundImage: `url('/photos/${item.slot}.webp')` }}>
+                  <span className="tag">{item.tag}</span>
+                </div>
+                <div className="bd">
+                  <h3>{item.title}</h3>
+                  <p>{item.copy}</p>
+                  <div className="meta"><span>{item.when}</span><b>View guide →</b></div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="inspire-section shell experience-split">
-        <div className="experience-statement">
-          <span className="eyebrow"><Ship size={15} /> Cruise inspiration</span>
-          <h2>The right cruise starts with how you want the days to feel.</h2>
-          <p>Big-ship energy, intimate river journeys, family fun, refined dining, expedition adventure, or relaxed island hopping—the ship and pace matter as much as the ports.</p>
-          <div className="mini-checks"><span><Check size={15} /> Ocean cruises</span><span><Check size={15} /> River cruises</span><span><Check size={15} /> Expedition styles</span><span><Check size={15} /> Cruise + land stays</span></div>
-          <Link className="button" href="/journal/first-cruise-planning-guide">Read the first-cruise guide <ArrowRight size={16} /></Link>
-        </div>
-        <div className="experience-mosaic">
-          <article><Globe2 /><span>See more places</span><strong>Mediterranean, Caribbean, Alaska, rivers, and beyond.</strong></article>
-          <article><Hotel /><span>Find your ship style</span><strong>Match dining, entertainment, space, and atmosphere to you.</strong></article>
-          <article><Waves /><span>Shape the full trip</span><strong>Add pre-cruise nights, transfers, excursions, and a land extension.</strong></article>
+      <section className="pad sand">
+        <div className="shell">
+          <div className="sec-head">
+            <div>
+              <div className="eyebrow">This month&apos;s promotions</div>
+              <h2>Live offers I can book for you</h2>
+            </div>
+            <Link className="btn ghost" href="/promotions">See all promotions</Link>
+          </div>
+          <div className="grid g3">
+            {PROMOS.map((promo) => (
+              <Link className="promo" href="/promotions" key={promo.title}>
+                <div className="ph" style={{ backgroundImage: `url('/photos/${promo.slot}.webp')` }} />
+                <div className="bd">
+                  <span className="pill">{promo.pill}</span>
+                  <h3>{promo.title}</h3>
+                  <p>{promo.copy}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="inspire-section culture-section">
-        <div className="shell culture-grid">
+      <section className="pad">
+        <div className="shell split">
+          <div className="ph" style={{ backgroundImage: "url('/photos/advisor.webp')" }} />
           <div>
-            <span className="eyebrow">Go beyond the postcard</span>
-            <h2>Come for the view. Remember the flavor, the stories, and the night.</h2>
-            <p>Waylume destination guides are designed around the full experience—not only where to sleep. Explore the cultural layer, local food, must-see places, and the kind of evening you want after the sun goes down.</p>
-            <Link href="/destinations">Browse destination guides <ArrowRight size={16} /></Link>
-          </div>
-          <div className="culture-notes">
-            <article><Utensils size={20} /><span><small>Local flavor</small><strong>Markets, neighborhood dining, regional traditions, and food-led experiences.</strong></span></article>
-            <article><Music2 size={20} /><span><small>After dark</small><strong>Live music, lounges, shows, dance, and nightlife that matches your comfort level.</strong></span></article>
-            <article><Compass size={20} /><span><small>Must do + see</small><strong>Iconic sights balanced with the experiences that reveal a place more slowly.</strong></span></article>
-          </div>
-        </div>
-      </section>
-
-      <section className="inspire-section shell">
-        <div className="editorial-heading">
-          <div><span className="eyebrow">The Waylume Journal</span><h2>Ideas worth building a trip around.</h2></div>
-          <div><p>Destination stories, cruise guidance, and practical planning perspectives to help you discover what you actually want.</p><Link href="/journal">Read every story <ArrowRight size={16} /></Link></div>
-        </div>
-        <div className="journal-preview-grid">
-          {journalArticles.slice(0, 3).map((article) => (
-            <article className={`journal-preview tone-${article.color}`} key={article.slug}>
-              <div><small>{article.category} · {article.readTime}</small><h3><Link href={`/journal/${article.slug}`}>{article.title}</Link></h3><p>{article.excerpt}</p></div>
-              <div className="editorial-card-actions"><Link href={`/journal/${article.slug}`}>Read story <ArrowRight size={15} /></Link><SaveShareActions compact id={`article:${article.slug}`} kind="article" title={article.title} description={article.excerpt} href={`/journal/${article.slug}`} destination={article.destination} /></div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="ai-editorial-band">
-        <div className="shell ai-editorial-grid">
-          <div><span className="eyebrow"><Sparkles size={15} /> Waylume AI research</span><h2>Bring the scattered ideas. Leave with one clear direction.</h2><p>Tell Waylume AI what you saved, what you love, and what you want to avoid. It can compare destinations, cruise styles, lodging directions, and itinerary shapes—then organize the result for human advisor research.</p></div>
-          <div className="ai-steps"><span><b>01</b>Browse and save inspiration</span><span><b>02</b>Explore possibilities with AI</span><span><b>03</b>Send one structured brief</span><span><b>04</b>Advisor researches current options</span></div>
-          <Link className="button" href="/concierge">Start a travel conversation <ArrowRight size={17} /></Link>
-        </div>
-      </section>
-
-      <section className="inspire-section shell advisor-booking-section">
-        <div className="advisor-booking-intro">
-          <div>
-            <span className="eyebrow">Waylume + Fora</span>
-            <h2>Inspiration here. Personalized booking with your advisor.</h2>
-          </div>
-          <div>
-            <p>Waylume helps you discover and define the trip. When you are ready, your Waylume advisor researches current options and guides the proposal, secure booking, and follow-through using Fora-approved and supplier systems.</p>
-            <Link href="/how-booking-works">See exactly how booking works <ArrowRight size={16} /></Link>
+            <div className="eyebrow">Why work with an advisor</div>
+            <h2 style={{ fontSize: "clamp(30px,3.6vw,46px)", margin: "14px 0 20px" }}>
+              An algorithm can<br />show you a room.<br />It can&apos;t call the GM.
+            </h2>
+            <p className="lead">
+              Booking sites sell inventory. I sell judgment — which of the four “ocean view” categories
+              actually sees the ocean, which resort is mid-renovation, which suite is worth the upgrade
+              and which isn&apos;t.
+            </p>
+            <div className="acc" style={{ marginTop: 28 }}>
+              <details open>
+                <summary>It costs you nothing</summary>
+                <p>Hotels and cruise lines pay commission whether you book direct or through me. Same rate, more included. My time is free to you.</p>
+              </details>
+              <details>
+                <summary>Perks you can&apos;t book yourself</summary>
+                <p>Through Fora&apos;s preferred partner programs: daily breakfast for two, property credits, room upgrades at check-in, late checkout, and VIP notes on your reservation.</p>
+              </details>
+              <details>
+                <summary>Someone to call when it goes wrong</summary>
+                <p>Cancelled flight, closed pool, a room that isn&apos;t what was promised — you text me instead of waiting in a call queue.</p>
+              </details>
+            </div>
           </div>
         </div>
-        <div className="advisor-booking-steps">
-          <article><Compass size={22} /><b>01</b><h3>Explore</h3><p>Browse destinations, guides, cruises, packages, culture, nightlife, and must-do experiences.</p></article>
-          <article><MessageSquareText size={22} /><b>02</b><h3>Shape the brief</h3><p>Save and share ideas, use Waylume AI, or send your trip details directly.</p></article>
-          <article><SearchCheck size={22} /><b>03</b><h3>Compare options</h3><p>Your advisor researches current supplier choices, final pricing, terms, and eligible benefits.</p></article>
-          <article><FileCheck2 size={22} /><b>04</b><h3>Book securely</h3><p>Review the proposal and complete payment through an approved Fora or supplier workflow.</p></article>
-        </div>
-        <div className="advisor-booking-trust">
-          <ShieldCheck size={19} />
-          <p><strong>{HOST_AGENCY.disclosure}.</strong> Preferred benefits may be available on eligible bookings; inclusions vary and are confirmed in your proposal.</p>
+      </section>
+
+      <section className="pad dark">
+        <div className="shell">
+          <div className="sec-head">
+            <div>
+              <div className="eyebrow">Signature stays</div>
+              <h2 style={{ color: "#fff" }}>Properties I know<br />well enough to rate</h2>
+            </div>
+            <Link className="btn light" href="/stays">Browse all stays</Link>
+          </div>
+          <div className="grid g3">
+            {STAYS.map((stay) => (
+              <Link className="card tall" href="/stays" key={stay.title}>
+                <div className="ph" style={{ backgroundImage: `url('/photos/${stay.slot}.webp')` }}>
+                  <span className="tag">{stay.tag}</span>
+                </div>
+                <div className="bd">
+                  <h3>{stay.title}</h3>
+                  <div className="stars">
+                    {stay.stars}{" "}
+                    <span style={{ color: "var(--muted)", letterSpacing: 0, fontSize: 12 }}>{stay.score}</span>
+                  </div>
+                  <p>{stay.copy}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section id="plan" className="inspire-section shell plan-grid inspiration-plan">
-        <div>
-          <span className="eyebrow">Ready for advisor research</span>
-          <h2>Already know the direction? Send the details.</h2>
-          <p className="lead compact">Your request enters the Waylume advisor workflow for manual research of current supplier availability, final pricing, booking terms, and relevant choices.</p>
-          <div className="notice"><strong>Discovery content, clearly separated from booking</strong><p>Waylume Travel is an independently branded travel advisory. {HOST_AGENCY.disclosure}. Website ideas and AI suggestions are inspirational and are not claims of live inventory, confirmed pricing, or completed reservations.</p></div>
+      <section className="pad">
+        <div className="shell">
+          <div className="sec-head">
+            <div>
+              <div className="eyebrow">Live from the travel wire</div>
+              <h2>Today&apos;s travel news,<br />updated automatically</h2>
+            </div>
+            <p className="lead">
+              Headlines pulled live from Condé Nast Traveler, The New York Times, Skift and more —
+              refreshed every hour, so there&apos;s always a reason to come back. I add the advisor&apos;s
+              read on the stories that change your plans.
+            </p>
+          </div>
+          <NewsWire limit={6} />
+          <div style={{ textAlign: "center", marginTop: 34 }}>
+            <Link className="btn ghost" href="/journal">Open the full news wire</Link>
+          </div>
         </div>
-        <TripRequestForm />
       </section>
-
-      <SiteFooter />
-    </main>
+    </MarketingShell>
   );
 }

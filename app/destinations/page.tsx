@@ -1,49 +1,56 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Compass, MapPinned, MoonStar, Sparkles } from "lucide-react";
-import SaveShareActions from "@/components/SaveShareActions";
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
-import { destinations } from "@/lib/destinations";
+import MarketingShell, { PageHead } from "@/components/wl/MarketingShell";
 
 export const metadata: Metadata = {
-  title: "Destination Inspiration",
-  description: "Explore Waylume destination guides with culture, nightlife, must-dos, stay ideas, and vacation styles before requesting current advisor-researched options.",
+  title: "Destinations",
+  description:
+    "Destination guides written from a booking perspective: when to go, what a good week costs, and where to stay at three price points.",
 };
+
+const GUIDES = [
+  { slot: "italy", tag: "Europe", title: "Italy: Amalfi to Puglia", copy: "Two coasts, one drive. Sep–Oct light, lemon groves, and masserie that still have space.", meta: "7–12 nights · from $6,400 pp" },
+  { slot: "greece", tag: "Europe", title: "Greek Islands by sea", copy: "Skip the ferry scrum: a small yacht, five islands, and beaches you reach at dawn.", meta: "8 nights · from $9,200 pp" },
+  { slot: "japan", tag: "Asia", title: "Japan in autumn", copy: "Tokyo, Kyoto, and the Seto Inland Sea — booked nine months out for the ryokans worth it.", meta: "10–14 nights · from $8,800 pp" },
+  { slot: "safari", tag: "Africa", title: "Tanzania safari", copy: "Migration timing, green-season value, and how to combine with Zanzibar without a wasted day.", meta: "9 nights · from $11,500 pp" },
+  { slot: "maldives", tag: "Indian Ocean", title: "Maldives & honeymoons", copy: "Atoll by atoll: seaplane vs speedboat, house reefs, and adults-only islands.", meta: "7 nights · from $7,900 pp" },
+  { slot: "cruise", tag: "At sea", title: "Norway & the fjords", copy: "Small-ship sailings, aurora season, and which cabin grades are actually worth the jump.", meta: "10 nights · from $6,100 pp" },
+];
 
 export default function DestinationsPage() {
   return (
-    <main className="inspiration-site">
-      <SiteHeader />
-      <section className="editorial-subhero">
-        <div className="shell">
-          <span className="eyebrow"><Compass size={15} /> Destination inspiration</span>
-          <h1>Start with a place.<br />Discover how it could feel.</h1>
-          <p>Browse more than flights and hotels. Explore the culture, food, nightlife, must-dos, stay styles, and trip shapes that can make a destination right for you.</p>
-          <div className="subhero-points"><span><MapPinned size={16} /> Must-dos and stay ideas</span><span><MoonStar size={16} /> Culture and nightlife</span><span><Sparkles size={16} /> AI-assisted exploration</span></div>
-        </div>
-      </section>
-
-      <section className="inspire-section shell">
-        <div className="destination-discovery-grid">
-          {destinations.map((destination, index) => (
-            <article className={`destination-discovery-card tone-${destination.color}`} key={destination.slug}>
-              <div className="destination-card-top"><span>{destination.region}</span><b>{String(index + 1).padStart(2, "0")}</b></div>
-              <div><h2><Link href={`/destinations/${destination.slug}`}>{destination.name}</Link></h2><strong>{destination.tagline}</strong><p>{destination.description}</p></div>
-              <div className="tag-row">{destination.bestFor.map((tag) => <span key={tag}>{tag}</span>)}</div>
-              <div className="destination-card-bottom">
-                <Link href={`/destinations/${destination.slug}`}>Open destination guide <ArrowRight size={15} /></Link>
-                <SaveShareActions compact id={`destination:${destination.slug}`} kind="destination" title={destination.name} description={destination.tagline} href={`/destinations/${destination.slug}`} destination={destination.name} />
+    <MarketingShell>
+      <PageHead
+        eyebrow="Destinations"
+        title={<>Places, and the right<br />month to see them.</>}
+        lead="Every guide is written from a booking perspective: when to go, what a good week costs, where to stay at three price points, and what I'd add that most itineraries miss."
+      />
+      <section className="pad" style={{ paddingTop: 30 }}>
+        <div className="shell grid g3">
+          {GUIDES.map((guide) => (
+            <Link
+              className="card"
+              key={guide.title}
+              href={`/plan?destination=${encodeURIComponent(guide.title)}`}
+            >
+              <div className="ph" style={{ backgroundImage: `url('/photos/${guide.slot}.webp')` }}>
+                <span className="tag">{guide.tag}</span>
               </div>
-            </article>
+              <div className="bd">
+                <h3>{guide.title}</h3>
+                <p>{guide.copy}</p>
+                <div className="meta"><span>{guide.meta}</span><b>Ask about this →</b></div>
+              </div>
+            </Link>
           ))}
         </div>
+        <div className="shell">
+          <p className="lead" style={{ marginTop: 26, fontSize: 13.5 }}>
+            Prices are indicative planning ranges for two travelers, land only, based on what similar trips
+            have cost recently. They move with season and availability — ask me for a live quote.
+          </p>
+        </div>
       </section>
-
-      <section className="destination-ai-cta">
-        <div className="shell"><div><span className="eyebrow"><Sparkles size={15} /> Somewhere else in mind?</span><h2>Ask about any destination.</h2><p>Waylume AI can help you explore places not yet featured in the journal and organize the possibilities for advisor research.</p></div><Link className="button" href="/concierge">Describe my trip idea <ArrowRight size={16} /></Link></div>
-      </section>
-      <SiteFooter />
-    </main>
+    </MarketingShell>
   );
 }
