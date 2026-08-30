@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import MarketingShell, { PageHead } from "@/components/wl/MarketingShell";
+import { Reveal } from "@/components/wl/Interactive";
 
 export const metadata: Metadata = {
   title: "Promotions",
@@ -13,19 +14,19 @@ const OFFERS = [
     slot: "cruise",
     pill: "Book by Oct 31, 2026",
     title: "Norway small-ship sailings",
-    copy: "Veranda upgrade, onboard credit and prepaid gratuities on select 2027 departures. Aurora season sells out first.",
+    copy: "A veranda upgrade, onboard credit and prepaid gratuities on select 2027 departures. Aurora season sells out first.",
   },
   {
     slot: "suite",
     pill: "Always on · Fora Preferred",
     title: "Preferred-partner hotel perks",
-    copy: "Daily breakfast for two, a property credit, upgrade subject to availability and late checkout — at thousands of hotels, at the same rate you'd pay direct.",
+    copy: "Daily breakfast for two, a property credit, an upgrade subject to availability and late checkout — at thousands of hotels, at the same rate you'd pay direct.",
   },
   {
     slot: "greece",
     pill: "Villas · Summer 2027",
     title: "Greek isles early-bird",
-    copy: "Villa inventory for next summer opens now and prices climb as it thins. Book early, hold the rate, decide details later.",
+    copy: "Villa inventory for next summer opens now and the best houses go first. Book early, decide the details later.",
   },
   {
     slot: "maldives",
@@ -45,12 +46,12 @@ export default function PromotionsPage() {
       />
       <section className="pad" style={{ paddingTop: 30 }}>
         <div className="shell grid g2">
-          {OFFERS.map((offer) => (
+          {OFFERS.map((offer, index) => (
+            <Reveal key={offer.title} delay={index * 80}>
             <Link
               className="promo"
-              key={offer.title}
               href={`/plan?destination=${encodeURIComponent(offer.title)}`}
-              style={{ minHeight: 400 }}
+              style={{ minHeight: 400, height: "100%" }}
             >
               <div className="ph" style={{ backgroundImage: `url('/photos/${offer.slot}.webp')` }} />
               <div className="bd">
@@ -59,13 +60,14 @@ export default function PromotionsPage() {
                 <p>{offer.copy}</p>
               </div>
             </Link>
+            </Reveal>
           ))}
         </div>
         <div className="shell">
           <p className="lead" style={{ marginTop: 26, fontSize: 13.5 }}>
             Promotions are supplier offers subject to availability, blackout dates and change without
-            notice. Nothing here is a quote — I&apos;ll confirm the exact terms in writing before you pay
-            anything.
+            notice. I don&apos;t publish prices — I quote them live through Fora&apos;s booking platform
+            for your dates, and confirm the exact terms in writing before you pay anything.
           </p>
         </div>
       </section>

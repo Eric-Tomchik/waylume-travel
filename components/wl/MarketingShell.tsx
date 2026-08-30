@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CtaBand, SiteFooter, SiteHeader } from "@/components/wl/Chrome";
+import { ScrollProgress, ShortlistTray } from "@/components/wl/Interactive";
 
 type Props = {
   children: ReactNode;
@@ -11,10 +12,12 @@ type Props = {
 export default function MarketingShell({ children, cta = true }: Props) {
   return (
     <>
+      <ScrollProgress />
       <SiteHeader />
       <main>{children}</main>
       {cta ? <CtaBand /> : null}
       <SiteFooter />
+      <ShortlistTray />
     </>
   );
 }

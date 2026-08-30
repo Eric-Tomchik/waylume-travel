@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import MarketingShell, { PageHead } from "@/components/wl/MarketingShell";
 import { NewsWire } from "@/components/wl/Live";
+import { Reveal } from "@/components/wl/Interactive";
 
 export const revalidate = 3600;
 
@@ -15,7 +16,7 @@ const STORIES = [
   { kind: "Entry rules", href: "/know-before-you-go", title: "ETIAS launches Q4 2026 — €20, six-month grace period", copy: "Europe's Entry/Exit System went fully live in April 2026; ETIAS follows this quarter for 30 countries." },
   { kind: "Entry rules", href: "/know-before-you-go", title: "UK ETA now strictly enforced — and it went to £20", copy: "Since 25 February 2026 carriers are fined for boarding travellers without one. Dual UK nationals must use a British passport." },
   { kind: "Entry rules", href: "/know-before-you-go", title: "Brazil e-visa: $80.90, apply two weeks out", copy: "Required for US passports since April 2025; the e-visa platform went fully electronic in February 2026." },
-  { kind: "Openings", href: "/stays", title: "Bulgari's first island resort slips to 2027", copy: "54 villas in Raa Atoll, Niko Romito dining, a villa on its own islet. Expect $3,000+ entry rates." },
+  { kind: "Openings", href: "/stays", title: "Bulgari's first island resort slips to 2027", copy: "54 villas in Raa Atoll, Niko Romito dining, and a villa on its own islet. Waitlists are open." },
   { kind: "Trends", href: "/destinations", title: "“City-maxxing”: one trip, three cities, usually two countries", copy: "France–Italy is the most-booked pairing. How to structure a multi-city trip without living on trains." },
   { kind: "2027", href: "/plan", title: "The eclipse, the World Cup and the Expo", copy: "2 August 2027 totality over Luxor; Rugby World Cup Australia; Expo Belgrade. Book Egypt now, not next spring." },
 ];
@@ -75,7 +76,7 @@ export default function JournalPage() {
               tell you what it actually means.
             </p>
           </div>
-          <NewsWire limit={12} />
+          <NewsWire limit={18} filters />
         </div>
       </section>
     </MarketingShell>
