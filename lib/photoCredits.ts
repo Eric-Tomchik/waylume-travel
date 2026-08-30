@@ -25,4 +25,9 @@ export const PHOTO_CREDITS: PhotoCredit[] = [
   { slot: "croatia", title: "View of Dubrovnik Old Town at night", creator: "Eric Hossinger", source: "https://www.flickr.com/photos/44717021@N06/5835537036", license: "CC BY 2.0", licenseUrl: "https://creativecommons.org/licenses/by/2.0/" },
   { slot: "morocco", title: "Marrakech Medina - Sept 2014 - 03", creator: "andynash", source: "https://www.flickr.com/photos/94611718@N00/15674217580", license: "CC BY-SA 2.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/2.0/" },
   { slot: "alaska", title: "Alaska Glaciers - from the plane", creator: "watts_photos", source: "https://www.flickr.com/photos/126288307@N05/35769316152", license: "CC BY 2.0", licenseUrl: "https://creativecommons.org/licenses/by/2.0/" },
+  { slot: "puerto-rico", title: "Typical Old San Juan Street", creator: "H. Michael Miley", source: "https://www.flickr.com/photos/44082489@N00/47505080522", license: "CC BY-SA 2.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/2.0/" },
+  { slot: "cancun", title: "Beautiful tulum beach mexico", creator: "dronepicr", source: "https://commons.wikimedia.org/w/index.php?curid=45110931", license: "CC BY 2.0", licenseUrl: "https://creativecommons.org/licenses/by/2.0/" },
+  { slot: "jamaica", title: "Beach sunset", creator: "Rawpixel", source: "https://www.rawpixel.com/image/5940491/free-public-domain-cc0-photo", license: "CC0 1.0", licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/" },
+  { slot: "orlando", title: "Naples, Florida", creator: "*rboed*", source: "https://www.flickr.com/photos/92082510@N04/31493148683", license: "CC BY 2.0", licenseUrl: "https://creativecommons.org/licenses/by/2.0/" },
+  { slot: "las-vegas", title: "Eiffel Tower Las Vegas Night Lights", creator: "Mario A. P.", source: "https://www.flickr.com/photos/99058495@N00/4645967440", license: "CC BY-SA 2.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/2.0/" },
 ];
