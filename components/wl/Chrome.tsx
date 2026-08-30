@@ -8,6 +8,7 @@ const NAV = [
   { href: "/stays", label: "Stays & Ratings" },
   { href: "/promotions", label: "Promotions" },
   { href: "/journal", label: "Travel News" },
+  { href: "/library", label: "Travel Library" },
   { href: "/know-before-you-go", label: "Know Before You Go" },
   { href: "/contact", label: "Contact" },
 ];
@@ -97,6 +98,7 @@ export function SiteFooter() {
           <div>
             <h4>Learn</h4>
             <Link href="/journal">Travel news</Link>
+            <Link href="/library">Travel library</Link>
             <Link href="/know-before-you-go">Know before you go</Link>
             <Link href="/how-booking-works">How booking works</Link>
           </div>
