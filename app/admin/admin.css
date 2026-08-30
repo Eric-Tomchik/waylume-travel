@@ -187,3 +187,47 @@
 .admin-shell h2,
 .admin-shell h3,
 .admin-shell b { color: var(--admin-text); }
+
+/* ---------- panels across every admin sub-page ----------
+   The dashboards reuse marketing card classes that hard-code white panels and
+   light borders (phase3/4/6 + inspiration.css). Driving them from the admin
+   theme variables keeps the light theme identical while making the dark theme
+   readable everywhere, instead of theming one page at a time. */
+.admin-shell .cms-form,
+.admin-shell .cms-list article,
+.admin-shell .empty-state,
+.admin-shell .notification-list article,
+.admin-shell .quote-card,
+.admin-shell .concierge-trust-card {
+  background: var(--admin-surface);
+  border-color: var(--admin-line);
+  color: var(--admin-text);
+}
+.admin-shell .itinerary-editor-day,
+.admin-shell .access-result {
+  background: var(--admin-surface-2);
+  border-color: var(--admin-line);
+  color: var(--admin-text);
+}
+.admin-shell .operations-nav a,
+.admin-shell .pipeline-stats {
+  background: var(--admin-surface-2);
+  border-color: var(--admin-line);
+  color: var(--admin-text);
+}
+
+[data-admin-theme="dark"] .admin-shell .cms-form label,
+[data-admin-theme="dark"] .admin-shell .crm-grid label,
+[data-admin-theme="dark"] .admin-shell .smart-form label { color: var(--admin-text); }
+[data-admin-theme="dark"] .admin-shell .notification-list p,
+[data-admin-theme="dark"] .admin-shell .cms-list p,
+[data-admin-theme="dark"] .admin-shell .quote-card p { color: var(--admin-muted); }
+[data-admin-theme="dark"] .admin-shell .cms-form select,
+[data-admin-theme="dark"] .admin-shell .quote-card select,
+[data-admin-theme="dark"] .admin-shell .lead-top select,
+[data-admin-theme="dark"] .admin-shell .itinerary-editor-day input,
+[data-admin-theme="dark"] .admin-shell .itinerary-editor-day textarea {
+  background: var(--admin-surface-2);
+  border-color: var(--admin-line);
+  color: var(--admin-text);
+}
