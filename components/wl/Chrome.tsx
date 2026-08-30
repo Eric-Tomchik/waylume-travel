@@ -104,6 +104,7 @@ export function SiteFooter() {
             <h4>Contact</h4>
             <a href="mailto:eric.tomchik@fora.travel">eric.tomchik@fora.travel</a>
             <a href="mailto:advisor@waylumetravel.com">advisor@waylumetravel.com</a>
+            <a href="tel:+12283445724">(228) 344-5724</a>
             <Link href="/contact">Contact me</Link>
           </div>
         </div>
