@@ -12,6 +12,11 @@ export const create = internalMutation({
   args: {
     name: v.string(),
     email: v.string(),
+    phone: v.optional(v.string()),
+    contactPreference: v.optional(v.string()),
+    bestTime: v.optional(v.string()),
+    heardAbout: v.optional(v.string()),
+    marketingOptIn: v.optional(v.boolean()),
     destination: v.string(),
     dates: v.optional(v.string()),
     travelers: v.string(),

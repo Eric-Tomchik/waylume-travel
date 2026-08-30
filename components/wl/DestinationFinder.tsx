@@ -111,7 +111,7 @@ export default function DestinationFinder() {
           {results.map((destination) => (
             <div className="card" key={destination.name}>
               <HeartButton name={destination.name} />
-              <Link href={`/plan?destination=${encodeURIComponent(destination.name)}`} style={{ display: "contents" }}>
+              <Link href={`/contact?destination=${encodeURIComponent(destination.name)}`} style={{ display: "contents" }}>
                 <div className="ph" style={{ backgroundImage: `url('/photos/${destination.slot}.webp')` }}>
                   <span className="tag">{destination.region}</span>
                 </div>
@@ -132,7 +132,7 @@ export default function DestinationFinder() {
       ) : (
         <div className="empty">
           Nothing matches that exact combination — but that doesn&apos;t mean it can&apos;t be done.{" "}
-          <Link href="/plan" style={{ color: "var(--aqua)", textDecoration: "underline" }}>Tell me what you have in mind</Link>{" "}
+          <Link href="/contact" style={{ color: "var(--aqua)", textDecoration: "underline" }}>Tell me what you have in mind</Link>{" "}
           and I&apos;ll find it.
         </div>
       )}

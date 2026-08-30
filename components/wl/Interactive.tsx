@@ -82,7 +82,7 @@ export function ShortlistTray() {
   const { items, remove, clear } = useShortlist();
   if (!items.length) return null;
 
-  const href = `/plan?destination=${encodeURIComponent(items.join(", "))}`;
+  const href = `/contact?destination=${encodeURIComponent(items.join(", "))}`;
 
   return (
     <aside className="tray" aria-label="Your shortlist">

@@ -18,7 +18,7 @@ const STORIES = [
   { kind: "Entry rules", href: "/know-before-you-go", title: "Brazil e-visa: $80.90, apply two weeks out", copy: "Required for US passports since April 2025; the e-visa platform went fully electronic in February 2026." },
   { kind: "Openings", href: "/stays", title: "Bulgari's first island resort slips to 2027", copy: "54 villas in Raa Atoll, Niko Romito dining, and a villa on its own islet. Waitlists are open." },
   { kind: "Trends", href: "/destinations", title: "“City-maxxing”: one trip, three cities, usually two countries", copy: "France–Italy is the most-booked pairing. How to structure a multi-city trip without living on trains." },
-  { kind: "2027", href: "/plan", title: "The eclipse, the World Cup and the Expo", copy: "2 August 2027 totality over Luxor; Rugby World Cup Australia; Expo Belgrade. Book Egypt now, not next spring." },
+  { kind: "2027", href: "/contact", title: "The eclipse, the World Cup and the Expo", copy: "2 August 2027 totality over Luxor; Rugby World Cup Australia; Expo Belgrade. Book Egypt now, not next spring." },
 ];
 
 export default function JournalPage() {
