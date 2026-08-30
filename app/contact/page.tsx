@@ -28,8 +28,9 @@ export default function ContactPage() {
               <Image
                 src="/eric-tomchik.webp"
                 alt="Eric Tomchik, Independent Advisor of Fora Travel, Inc."
-                width={256}
-                height={256}
+                width={512}
+                height={512}
+                sizes="(max-width: 700px) 60vw, 260px"
                 className="advisor-photo"
                 priority
               />
@@ -47,9 +48,10 @@ export default function ContactPage() {
                   <a href="mailto:advisor@waylumetravel.com">advisor@waylumetravel.com</a>
                 </div>
                 <div>
-                  <b>Prefer to talk?</b>
-                  <span style={{ color: "#e6dccd", fontSize: 15 }}>
-                    Ask for a call in the form and I&apos;ll ring you at the time you choose.
+                  <b>Call or text</b>
+                  <a href="tel:+12283445724">(228) 344-5724</a>
+                  <span style={{ color: "#e6dccd", fontSize: 14, display: "block", marginTop: 4 }}>
+                    Or ask for a call in the form and I&apos;ll ring you at the time you choose.
                   </span>
                 </div>
               </div>
