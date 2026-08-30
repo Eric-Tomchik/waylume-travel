@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import MarketingShell, { PageHead } from "@/components/wl/MarketingShell";
+import { HeartButton, Lightbox, Reveal } from "@/components/wl/Interactive";
 
 export const metadata: Metadata = {
   title: "Stays & Ratings",
   description:
-    "Hotel and resort ratings from an independent advisor — the room you'll actually get, the service floor on a bad day, the food, and whether the price makes sense.",
+    "Hotel and resort ratings from an independent advisor — the room you'll actually get, the service floor on a bad day, the food, and whether it earns its reputation.",
 };
 
 const STAYS = [
-  { place: "Maldives", title: "Raa Atoll overwater villas", copy: "Seaplane 45 minutes from Malé. Best house reef in the atoll; Bulgari's island arrives 2027.", stars: "★★★★★", score: "9.4 · from $1,900/nt" },
-  { place: "Dubai", title: "Six Senses The Palm", copy: "Opened 1 September 2026. 61 all-suite beachfront keys, 60,000 sq ft wellness club, longevity clinic.", stars: "★★★★★", score: "9.2 · from $1,500/nt" },
-  { place: "Turks & Caicos", title: "Andaz Turks & Caicos", copy: "Grace Bay debut 1 June 2027, 59 rooms plus 73 residences. Reservations already open.", stars: "★★★★☆", score: "8.9 · from $1,297/nt" },
-  { place: "Saudi Red Sea", title: "Six Senses AMAALA", copy: "Opened July 2026 between desert cliffs and a mangrove lagoon. 100 suites and villas.", stars: "★★★★☆", score: "8.8 · on request" },
-  { place: "Italy", title: "Amalfi Coast classics", copy: "Positano vs Ravello vs Praiano — which one suits your walking legs and your dinner plans.", stars: "★★★★★", score: "9.1 · from $1,150/nt" },
+  { slot: "maldives", place: "Maldives", title: "Raa Atoll overwater villas", copy: "Seaplane 45 minutes from Malé. The best house reef in the atoll; Bulgari's island resort arrives in 2027.", stars: "★★★★★", score: "9.4", tag: "Romance" },
+  { slot: "dubai", place: "Dubai", title: "Six Senses The Palm", copy: "Opened September 2026. Sixty-one all-suite beachfront keys, a 60,000 sq ft wellness club and a longevity clinic.", stars: "★★★★★", score: "9.2", tag: "Wellness" },
+  { slot: "thailand", place: "Turks & Caicos", title: "Andaz Turks & Caicos", copy: "Grace Bay debut in June 2027, 59 rooms plus 73 residences. Reservations are already open.", stars: "★★★★☆", score: "8.9", tag: "Family" },
+  { slot: "morocco", place: "Saudi Red Sea", title: "Six Senses AMAALA", copy: "Opened July 2026 between desert cliffs and a mangrove lagoon. One hundred suites and villas.", stars: "★★★★☆", score: "8.8", tag: "Design" },
+  { slot: "italy", place: "Italy", title: "Amalfi Coast classics", copy: "Positano versus Ravello versus Praiano — which one suits your walking legs and your dinner plans.", stars: "★★★★★", score: "9.1", tag: "Icon" },
+  { slot: "safari", place: "Tanzania", title: "Mobile tented camps", copy: "Camps that move with the herds, with guides who have worked the same valleys for twenty years.", stars: "★★★★☆", score: "9.0", tag: "Adventure" },
 ];
 
 export default function StaysPage() {
@@ -22,55 +24,69 @@ export default function StaysPage() {
       <PageHead
         eyebrow="Stays & ratings"
         title={<>Hotels, rated by<br />someone accountable.</>}
-        lead="My ratings weigh four things: the room you'll actually get, the service floor on a bad day, the food, and whether the price makes sense against its neighbours. Every property below is bookable with Fora preferred-partner perks."
+        lead="My ratings weigh four things: the room you'll actually get, the service floor on a bad day, the food, and whether the place earns its reputation. Click any photo to see it full screen; heart the ones you want me to price."
       />
-      <section className="pad" style={{ paddingTop: 30 }}>
-        <div className="shell">
-          <div className="rows">
-            {STAYS.map((stay) => (
-              <Link
-                className="row"
-                key={stay.title}
-                href={`/plan?destination=${encodeURIComponent(stay.title)}`}
-                style={{ gridTemplateColumns: "140px 1fr 210px" }}
-              >
-                <span className="dt">{stay.place}</span>
-                <div>
+
+      <section className="pad" style={{ paddingTop: 24 }}>
+        <div className="shell grid g3">
+          {STAYS.map((stay, index) => (
+            <Reveal key={stay.title} delay={index * 70}>
+              <div className="card" style={{ height: "100%" }}>
+                <HeartButton name={stay.title} />
+                <Lightbox src={`/photos/${stay.slot}.webp`} caption={`${stay.title} — ${stay.place}`}>
+                  <div className="ph" style={{ backgroundImage: `url('/photos/${stay.slot}.webp')` }}>
+                    <span className="tag">{stay.place}</span>
+                  </div>
+                </Lightbox>
+                <div className="bd">
                   <h3>{stay.title}</h3>
+                  <div className="stars">
+                    {stay.stars}{" "}
+                    <span style={{ color: "var(--muted)", letterSpacing: 0, fontSize: 12 }}>
+                      {stay.score} · {stay.tag}
+                    </span>
+                  </div>
                   <p>{stay.copy}</p>
+                  <div className="meta">
+                    <span>Preferred-partner perks</span>
+                    <Link href={`/plan?destination=${encodeURIComponent(stay.title)}`}><b>Ask me to price it →</b></Link>
+                  </div>
                 </div>
-                <span className="go">
-                  <span className="stars">{stay.stars}</span>
-                  <br />
-                  {stay.score}
-                </span>
-              </Link>
-            ))}
-          </div>
-          <p className="lead" style={{ marginTop: 26, fontSize: 13.5 }}>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <div className="shell">
+          <p className="lead" style={{ marginTop: 30, fontSize: 13.5 }}>
             Ratings are my own editorial assessment, informed by supplier relationships and client
-            feedback. Rates are indicative and change constantly — ask me for a live quote.
+            feedback. I don&apos;t publish rates — availability and pricing move constantly, so I quote
+            them live through Fora&apos;s booking platform once I know your dates. Photography on this
+            page is illustrative of the destination rather than of the specific property.
           </p>
         </div>
       </section>
 
       <section className="pad sand">
         <div className="shell split">
-          <div className="ph" style={{ backgroundImage: "url('/photos/suite.webp')" }} />
-          <div>
-            <div className="eyebrow">What preferred-partner booking gets you</div>
-            <h2 style={{ fontSize: "clamp(28px,3.4vw,42px)", margin: "14px 0 20px" }}>
-              Same rate.<br />More in the room.
-            </h2>
-            <p className="lead">
-              Booking through Fora&apos;s preferred programs costs you nothing extra and typically adds
-              daily breakfast for two, a property credit, an upgrade at check-in when inventory allows,
-              late checkout, and a VIP note on the reservation so the front desk knows who you are.
-            </p>
-            <div style={{ marginTop: 26 }}>
-              <Link className="btn" href="/plan">Ask about a specific hotel</Link>
+          <Reveal>
+            <div className="ph" style={{ backgroundImage: "url('/photos/suite.webp')" }} />
+          </Reveal>
+          <Reveal delay={90}>
+            <div>
+              <div className="eyebrow">What preferred-partner booking gets you</div>
+              <h2 style={{ fontSize: "clamp(28px,3.4vw,42px)", margin: "14px 0 20px" }}>
+                Same rate.<br /><span className="grad">More in the room.</span>
+              </h2>
+              <p className="lead">
+                Booking through Fora&apos;s preferred programs costs you nothing extra and typically adds
+                daily breakfast for two, a property credit, an upgrade at check-in when inventory allows,
+                late checkout, and a VIP note on the reservation so the front desk knows who you are.
+              </p>
+              <div style={{ marginTop: 26 }}>
+                <Link className="btn" href="/plan">Ask about a specific hotel</Link>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
     </MarketingShell>
