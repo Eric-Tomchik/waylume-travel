@@ -161,6 +161,10 @@ Final supplier availability, final pricing, payment requirements, booking terms,
 
 ### Cloudflare Workers
 
+Cloudflare is the only deployment target for this project. There is no Vercel configuration,
+no Vercel adapter and no Vercel-specific code in the repository: the app is built with OpenNext
+and published as the `waylume-travel` Worker via `npm run cf:deploy`.
+
 The repository is configured for Cloudflare Workers with OpenNext while Convex remains the application backend.
 
 ```bash

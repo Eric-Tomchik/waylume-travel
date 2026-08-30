@@ -131,8 +131,16 @@ export async function getAdvisories(limit = 8): Promise<Advisory[]> {
       link: link(block),
     });
   }
-  advisories.sort((a, b) => b.level - a.level);
-  return advisories.slice(0, limit);
+  // Show a mix rather than eight Level 4 countries: the Level 3 list is the one
+  // travelers are more likely to actually be planning around.
+  const four = advisories.filter((advisory) => advisory.level === 4);
+  const three = advisories.filter((advisory) => advisory.level === 3);
+  const mixed: Advisory[] = [];
+  for (let index = 0; mixed.length < limit && (four[index] || three[index]); index += 1) {
+    if (four[index]) mixed.push(four[index]);
+    if (three[index] && mixed.length < limit) mixed.push(three[index]);
+  }
+  return mixed;
 }
 
 export function timeAgo(published: number | null): string {
