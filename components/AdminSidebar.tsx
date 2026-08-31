@@ -29,6 +29,7 @@ const NAV: NavGroup[] = [
       { href: "/admin/fora-deals", label: "Fora deals", icon: "★" },
       { href: "/admin/promotions", label: "Promotions", icon: "◆" },
       { href: "/admin/suppliers", label: "Suppliers", icon: "⛨" },
+      { href: "/admin/policies", label: "Fora policies", icon: "§" },
     ],
   },
   {
