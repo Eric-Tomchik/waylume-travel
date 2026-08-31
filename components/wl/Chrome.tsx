@@ -19,14 +19,15 @@ export function SiteHeader() {
       <div className="shell nav-in">
         <Link href="/" className="brand" aria-label="Waylume Travel — home">
           <Image
-            src="/waylume-travel-logo.png"
+            src="/waylume-travel-logo.webp"
             alt="Waylume Travel — Independent Agent of Fora Travel, Inc."
-            width={2153}
-            height={707}
+            width={1600}
+            height={525}
             className="logo"
             priority
           />
         </Link>
+        <span className="brand-fora" aria-hidden="true">Independent Agent of Fora Travel, Inc.</span>
         <nav className="links" aria-label="Primary">
           {NAV.map((item) => (
             <Link key={item.href} href={item.href}>{item.label}</Link>
@@ -78,10 +79,10 @@ export function SiteFooter() {
           <div>
             <Link href="/" className="brand" aria-label="Waylume Travel — home">
               <Image
-                src="/waylume-travel-logo.png"
+                src="/waylume-travel-logo.webp"
                 alt="Waylume Travel"
-                width={2153}
-                height={707}
+                width={1600}
+                height={525}
                 className="logo"
               />
             </Link>

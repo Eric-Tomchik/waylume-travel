@@ -123,8 +123,20 @@ header.nav {
   border-bottom: 1px solid rgba(127, 233, 240, 0.22);
   box-shadow: 0 10px 30px rgba(3, 14, 24, 0.45);
 }
-.nav-in { display: flex; align-items: center; justify-content: space-between; height: 78px; gap: 24px; }
-.brand img.logo { height: 60px; width: auto; filter: drop-shadow(0 2px 10px rgba(47, 211, 227, 0.35)); }
+.nav-in { display: flex; align-items: center; justify-content: space-between; height: 104px; gap: 24px; }
+.brand img.logo { height: 86px; width: auto; filter: drop-shadow(0 2px 10px rgba(47, 211, 227, 0.35)); }
+.brand-fora {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #BFF4FA;
+  white-space: nowrap;
+  margin-left: -6px;
+  text-shadow: 0 0 6px rgba(127, 233, 240, 0.85), 0 0 18px rgba(47, 211, 227, 0.55);
+}
+@media (max-width: 1180px) { .brand-fora { display: none; } }
 nav.links { display: flex; gap: 28px; font-size: 14px; font-weight: 500; }
 nav.links a { padding: 6px 0; color: #DCEDF3; position: relative; }
 nav.links a::after {
@@ -319,7 +331,7 @@ footer.site h4 { font-size: 11px; letter-spacing: 0.18em; text-transform: upperc
 footer.site a { display: block; padding: 5px 0; color: var(--muted); }
 footer.site a:hover { color: var(--aqua); }
 footer.site .brand { display: inline-flex; }
-footer.site .brand img.logo { height: 60px; }
+footer.site .brand img.logo { height: 92px; }
 footer.site .fine { padding-top: 26px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 12px; }
 .credits { padding: 22px 0 6px; border-top: 1px solid var(--line); font-size: 11.5px; line-height: 1.8; }
 .credits b { color: var(--foam); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 10px; display: block; margin-bottom: 8px; }
@@ -439,7 +451,7 @@ section.pad.sand + section.pad.sand { padding-top: 0; }
   :root { --shell: calc(100% - 32px); }
   nav.links { display: none; }
   .mobile-nav { display: block; }
-  .brand img.logo { height: 40px; }
+  .brand img.logo { height: 58px; }
   .g4, .g3, .g2 { grid-template-columns: 1fr; }
   .row { grid-template-columns: 1fr; gap: 8px; }
   .row .go { text-align: left; }
