@@ -66,6 +66,7 @@ export const listForAdminInternal = internalQuery({
     supplierType: v.optional(v.string()),
     publishedOnly: v.optional(v.boolean()),
     limit: v.optional(v.number()),
+    offset: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const limit = Math.min(args.limit ?? 100, 300);
@@ -87,7 +88,7 @@ export const listForAdminInternal = internalQuery({
 
     return {
       total: deals.length,
-      deals: deals.slice(0, limit).map(d => ({
+      deals: deals.slice(args.offset ?? 0, (args.offset ?? 0) + limit).map(d => ({
         _id: d._id,
         foraId: d.foraId,
         title: d.title,

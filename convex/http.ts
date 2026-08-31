@@ -175,6 +175,7 @@ http.route({ path: "/admin/fora-deals", method: "GET", handler: httpAction(async
     supplierType: params.get("supplierType") || undefined,
     publishedOnly: params.get("publishedOnly") === "true" ? true : undefined,
     limit: Number.isFinite(limit) ? limit : 100,
+    offset: Number(params.get("offset") || 0) || undefined,
   });
   const stats = await ctx.runQuery(internal.foraDeals.statsInternal, {});
   return new Response(JSON.stringify({ ...result, stats }), { status: 200, headers: jsonHeaders });
@@ -206,6 +207,41 @@ http.route({ path: "/admin/fora-deals/import", method: "POST", handler: httpActi
     const result = await ctx.runMutation(internal.foraDeals.importBatchInternal, { deals: body.deals });
     return new Response(JSON.stringify({ ok: true, ...result }), { status: 200, headers: jsonHeaders });
   } catch { return new Response(JSON.stringify({ error: "Unable to import deals" }), { status: 400, headers: jsonHeaders }); }
+}) });
+
+http.route({ path: "/admin/fora-policies", method: "GET", handler: httpAction(async (ctx, request) => {
+  if (!isAdmin(request)) return unauthorized();
+  const params = new URL(request.url).searchParams;
+  const result = await ctx.runQuery(internal.foraPolicies.listForAdminInternal, {
+    search: params.get("search") || undefined,
+    slug: params.get("slug") || undefined,
+  });
+  return new Response(JSON.stringify(result), { status: 200, headers: jsonHeaders });
+}) });
+
+http.route({ path: "/admin/fora-policies", method: "PATCH", handler: httpAction(async (ctx, request) => {
+  if (!isAdmin(request)) return unauthorized();
+  try {
+    const body = await request.json();
+    if (!body.slug) return new Response(JSON.stringify({ error: "slug is required" }), { status: 400, headers: jsonHeaders });
+    const result = await ctx.runMutation(internal.foraPolicies.saveNotesInternal, {
+      slug: String(body.slug),
+      advisorNotes: String(body.advisorNotes ?? ""),
+    });
+    if (!result.ok) return new Response(JSON.stringify({ error: result.error }), { status: 400, headers: jsonHeaders });
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: jsonHeaders });
+  } catch { return new Response(JSON.stringify({ error: "Unable to save notes" }), { status: 400, headers: jsonHeaders }); }
+}) });
+
+http.route({ path: "/admin/fora-policies/import", method: "POST", handler: httpAction(async (ctx, request) => {
+  if (!isAdmin(request)) return unauthorized();
+  try {
+    const body = await request.json();
+    if (!Array.isArray(body.policies) || !body.policies.length) return new Response(JSON.stringify({ error: "policies array is required" }), { status: 400, headers: jsonHeaders });
+    if (body.policies.length > 25) return new Response(JSON.stringify({ error: "Send at most 25 policies per batch" }), { status: 400, headers: jsonHeaders });
+    const result = await ctx.runMutation(internal.foraPolicies.importBatchInternal, { policies: body.policies });
+    return new Response(JSON.stringify({ ok: true, ...result }), { status: 200, headers: jsonHeaders });
+  } catch { return new Response(JSON.stringify({ error: "Unable to import policies" }), { status: 400, headers: jsonHeaders }); }
 }) });
 
 export default http;
