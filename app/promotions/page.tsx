@@ -36,7 +36,34 @@ const OFFERS = [
   },
 ];
 
-export default function PromotionsPage() {
+type PublishedDeal = {
+  id: string;
+  title: string;
+  summary: string;
+  supplier: string;
+  location?: string;
+  imageUrl?: string;
+  bookBy?: string;
+  exclusiveToFora: boolean;
+};
+
+/** Advisor-approved Fora deals. Only what Eric publishes in /admin/fora-deals appears here. */
+async function getPublishedDeals(): Promise<PublishedDeal[]> {
+  const siteUrl = process.env.CONVEX_SITE_URL;
+  if (!siteUrl) return [];
+  try {
+    const response = await fetch(`${siteUrl}/fora-deals?limit=24`, { next: { revalidate: 300 } });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data.deals) ? data.deals : [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function PromotionsPage() {
+  const deals = await getPublishedDeals();
+
   return (
     <MarketingShell>
       <PageHead
@@ -63,6 +90,43 @@ export default function PromotionsPage() {
             </Reveal>
           ))}
         </div>
+      </section>
+      {Boolean(deals.length) && (
+        <section className="pad" style={{ paddingTop: 0 }}>
+          <div className="shell">
+            <h2>Live supplier offers</h2>
+            <p className="lead" style={{ fontSize: 14 }}>
+              Current partner promotions I can book for you. Terms and availability are confirmed in writing
+              before you pay anything.
+            </p>
+          </div>
+          <div className="shell grid g2">
+            {deals.map((deal, index) => (
+              <Reveal key={deal.id} delay={index * 60}>
+                <Link
+                  className="promo"
+                  href={`/contact?destination=${encodeURIComponent(deal.supplier)}`}
+                  style={{ minHeight: 400, height: "100%" }}
+                >
+                  <div className="ph" style={deal.imageUrl ? { backgroundImage: `url('${deal.imageUrl}')` } : undefined} />
+                  <div className="bd">
+                    <span className="pill">
+                      {deal.bookBy ? `Book by ${deal.bookBy}` : "Current offer"}
+                      {deal.exclusiveToFora ? " · Fora exclusive" : ""}
+                    </span>
+                    <h3>{deal.title}</h3>
+                    <p>{deal.summary}</p>
+                    <p style={{ fontSize: 12.5, opacity: 0.75 }}>
+                      {deal.supplier}{deal.location ? ` · ${deal.location}` : ""}
+                    </p>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
+      <section className="pad" style={{ paddingTop: 0 }}>
         <div className="shell">
           <p className="lead" style={{ marginTop: 26, fontSize: 13.5 }}>
             Promotions are supplier offers subject to availability, blackout dates and change without

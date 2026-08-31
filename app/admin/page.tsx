@@ -161,6 +161,7 @@ export default function AdminCrmPage() {
           <div className="admin-actions">
             <Link className="button small" href="/admin/notifications">Notifications</Link>
             <Link className="button small" href="/admin/promotions">Promotions</Link>
+            <Link className="button small" href="/admin/fora-deals">Fora deals</Link>
             <button className="ghost" onClick={() => loadLeads()}>Refresh</button>
             <div className="pipeline-stats"><b>{leads.length}</b><span>total clients</span></div>
           </div>
