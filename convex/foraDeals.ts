@@ -362,3 +362,44 @@ export const bulkSetPublishedInternal = internalMutation({
     return { updated, failures };
   },
 });
+
+/**
+ * Daily housekeeping (see convex/crons.ts): pull any published deal whose
+ * booking or travel window has closed off the public site, and record what was
+ * retired so the change is auditable from the analytics log.
+ */
+export const retireExpiredInternal = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const today = todayIso();
+    const published = await ctx.db
+      .query("foraDeals")
+      .withIndex("by_published", q => q.eq("published", true))
+      .collect();
+
+    const retired = published.filter(deal => isExpired(deal, today));
+    for (const deal of retired) {
+      await ctx.db.patch(deal._id, { published: false, updatedAt: Date.now() });
+    }
+
+    if (retired.length) {
+      await ctx.db.insert("analyticsEvents", {
+        event: "fora_deals_retired",
+        surface: "cron",
+        metadata: JSON.stringify({
+          count: retired.length,
+          deals: retired.slice(0, 25).map(deal => ({
+            id: deal._id,
+            title: deal.publicTitle || deal.title,
+            supplier: deal.supplier,
+            bookingEnd: deal.bookingEnd,
+            travelEnd: deal.travelEnd,
+          })),
+        }),
+        createdAt: Date.now(),
+      });
+    }
+
+    return { retired: retired.length };
+  },
+});
