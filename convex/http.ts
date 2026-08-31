@@ -160,4 +160,52 @@ http.route({ path: "/admin/suppliers", method: "POST", handler: httpAction(async
   } catch { return new Response(JSON.stringify({ error: "Unable to save supplier resource" }), { status: 400, headers: jsonHeaders }); }
 }) });
 
+http.route({ path: "/fora-deals", method: "GET", handler: httpAction(async (ctx, request) => {
+  const limit = Number(new URL(request.url).searchParams.get("limit") || 60);
+  const deals = await ctx.runQuery(internal.foraDeals.listPublishedInternal, { limit: Number.isFinite(limit) ? limit : 60 });
+  return new Response(JSON.stringify({ deals }), { status: 200, headers: jsonHeaders });
+}) });
+
+http.route({ path: "/admin/fora-deals", method: "GET", handler: httpAction(async (ctx, request) => {
+  if (!isAdmin(request)) return unauthorized();
+  const params = new URL(request.url).searchParams;
+  const limit = Number(params.get("limit") || 100);
+  const result = await ctx.runQuery(internal.foraDeals.listForAdminInternal, {
+    search: params.get("search") || undefined,
+    supplierType: params.get("supplierType") || undefined,
+    publishedOnly: params.get("publishedOnly") === "true" ? true : undefined,
+    limit: Number.isFinite(limit) ? limit : 100,
+  });
+  const stats = await ctx.runQuery(internal.foraDeals.statsInternal, {});
+  return new Response(JSON.stringify({ ...result, stats }), { status: 200, headers: jsonHeaders });
+}) });
+
+http.route({ path: "/admin/fora-deals", method: "PATCH", handler: httpAction(async (ctx, request) => {
+  if (!isAdmin(request)) return unauthorized();
+  try {
+    const body = await request.json();
+    if (!body.id) return new Response(JSON.stringify({ error: "Deal id is required" }), { status: 400, headers: jsonHeaders });
+    const result = await ctx.runMutation(internal.foraDeals.updateInternal, {
+      id: body.id as Id<"foraDeals">,
+      publicTitle: body.publicTitle === undefined ? undefined : String(body.publicTitle),
+      publicSummary: body.publicSummary === undefined ? undefined : String(body.publicSummary),
+      published: body.published === undefined ? undefined : Boolean(body.published),
+      sortOrder: body.sortOrder === undefined ? undefined : Number(body.sortOrder),
+    });
+    if (!result.ok) return new Response(JSON.stringify({ error: result.error }), { status: 400, headers: jsonHeaders });
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: jsonHeaders });
+  } catch { return new Response(JSON.stringify({ error: "Unable to update deal" }), { status: 400, headers: jsonHeaders }); }
+}) });
+
+http.route({ path: "/admin/fora-deals/import", method: "POST", handler: httpAction(async (ctx, request) => {
+  if (!isAdmin(request)) return unauthorized();
+  try {
+    const body = await request.json();
+    if (!Array.isArray(body.deals) || !body.deals.length) return new Response(JSON.stringify({ error: "deals array is required" }), { status: 400, headers: jsonHeaders });
+    if (body.deals.length > 200) return new Response(JSON.stringify({ error: "Send at most 200 deals per batch" }), { status: 400, headers: jsonHeaders });
+    const result = await ctx.runMutation(internal.foraDeals.importBatchInternal, { deals: body.deals });
+    return new Response(JSON.stringify({ ok: true, ...result }), { status: 200, headers: jsonHeaders });
+  } catch { return new Response(JSON.stringify({ error: "Unable to import deals" }), { status: 400, headers: jsonHeaders }); }
+}) });
+
 export default http;
