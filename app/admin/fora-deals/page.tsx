@@ -34,6 +34,12 @@ function window_(start?: string, end?: string) {
   return `${start || "…"} → ${end || "…"}`;
 }
 
+/** Mirrors convex/foraDeals.ts — Fora restricts public promotion of these partner brands. */
+const RESTRICTED_BRANDS = /four\s+seasons|virtuoso|\bmarriott\s+stars\b|\bluminous\b/i;
+function restrictedBrand(text: string) {
+  return RESTRICTED_BRANDS.test(text);
+}
+
 export default function ForaDealsAdminPage() {
   const [token, setToken] = useState("");
   const [authorized, setAuthorized] = useState(false);
@@ -236,6 +242,7 @@ export default function ForaDealsAdminPage() {
                       {" · "}{deal.supplierType || "other"}
                       {deal.exclusiveToFora ? " · Fora exclusive" : ""}
                       {deal.tradeLanguage ? " · ⚠ advisor-only wording in source" : ""}
+                      {restrictedBrand(`${deal.supplier} ${deal.title}`) ? " · ⛔ partner brand restricted by Fora policy" : ""}
                     </small>
                     <h3>{deal.publicTitle || deal.title}</h3>
                     <p>

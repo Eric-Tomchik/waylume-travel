@@ -44,7 +44,6 @@ type PublishedDeal = {
   location?: string;
   imageUrl?: string;
   bookBy?: string;
-  exclusiveToFora: boolean;
 };
 
 /** Advisor-approved Fora deals. Only what Eric publishes in /admin/fora-deals appears here. */
@@ -97,7 +96,9 @@ export default async function PromotionsPage() {
             <h2>Live supplier offers</h2>
             <p className="lead" style={{ fontSize: 14 }}>
               Current partner promotions I can book for you. Terms and availability are confirmed in writing
-              before you pay anything.
+              before you pay anything. Eric Tomchik is an independent travel advisor of Fora Travel; partner
+              amenities and offers are available through that affiliation, and I&apos;ll share current terms and
+              pricing for your dates on request.
             </p>
           </div>
           <div className="shell grid g2">
@@ -112,7 +113,6 @@ export default async function PromotionsPage() {
                   <div className="bd">
                     <span className="pill">
                       {deal.bookBy ? `Book by ${deal.bookBy}` : "Current offer"}
-                      {deal.exclusiveToFora ? " · Fora exclusive" : ""}
                     </span>
                     <h3>{deal.title}</h3>
                     <p>{deal.summary}</p>

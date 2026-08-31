@@ -27,6 +27,49 @@ export function hasTradeLanguage(text: string) {
   return TRADE_PATTERNS.some(pattern => pattern.test(text));
 }
 
+/**
+ * Fora Communications & Branding Policy: advisors may not publicly promote specific rates,
+ * discounts, benefits or promotions, and may not describe offers as exclusive to Fora.
+ * Partner Engagement Policy: preferred partner rates and access are confidential.
+ */
+const RATE_PROMOTION_PATTERNS: Array<[RegExp, string]> = [
+  [/\d+\s*(%|percent)/i, "a percentage discount"],
+  [/[$€£]\s?\d/i, "a currency amount"],
+  [/\b(third|fourth|fifth|second)\s+night\s+(free|complimentary|on\s+us)/i, "a free-night offer"],
+  [/\bfree\s+night/i, "a free-night offer"],
+  [/\bstay\s+\d+\s*,?\s*pay\s+\d+/i, "a stay/pay offer"],
+  [/\b(discount|discounted|save|savings|reduced\s+rate|special\s+rate|preferred\s+rate|rebate)\b/i, "discount or rate language"],
+  [/\b\d+\s*(usd|eur|gbp|dollars?|euros?)\b/i, "a currency amount"],
+  [/\bexclusive(ly)?\b/i, "\"exclusive\" framing"],
+  [/\b(off\s+(your|the|room|rates?|nightly))/i, "discount language"],
+];
+
+/** Brands Eric is not eligible to showcase publicly at his current Fora certification level. */
+const RESTRICTED_BRAND_PATTERNS: Array<[RegExp, string]> = [
+  [/four\s+seasons/i, "Four Seasons (Preferred Partner — Pro/X advisors only)"],
+  [/virtuoso/i, "Virtuoso (Pro/X advisors only)"],
+  [/\bmarriott\s+stars\b|\bluminous\b|\bstars\s*&\s*luminous\b/i, "Marriott STARS & LUMINOUS (X advisors only)"],
+];
+
+/** Returns a human-readable reason when public copy breaches Fora policy, else null. */
+export function restrictedBrand(text: string): string | null {
+  for (const [pattern, label] of RESTRICTED_BRAND_PATTERNS) {
+    if (pattern.test(text)) {
+      return `References ${label}. Fora restricts showcasing this partner affiliation publicly at your certification level.`;
+    }
+  }
+  return null;
+}
+
+export function policyViolation(text: string): string | null {
+  for (const [pattern, label] of RATE_PROMOTION_PATTERNS) {
+    if (pattern.test(text)) {
+      return `Public copy names ${label}. Fora's Communications & Branding Policy prohibits publicly promoting specific rates, discounts or promotions. Describe the value without the numbers.`;
+    }
+  }
+  return restrictedBrand(text);
+}
+
 /** Shape returned to the public website. Raw advisor copy is deliberately absent. */
 function toPublic(deal: {
   _id: string; publicTitle?: string; title: string; publicSummary?: string; supplier: string;
@@ -195,8 +238,13 @@ export const updateInternal = internalMutation({
       if (!publicSummary) {
         return { ok: false as const, error: "Write a traveler-facing summary before publishing this deal." };
       }
-      if (hasTradeLanguage(`${publicTitle || ""} ${publicSummary}`)) {
+      const publicText = `${publicTitle || ""} ${publicSummary}`;
+      if (hasTradeLanguage(publicText)) {
         return { ok: false as const, error: "Public copy still contains advisor-only language (commission, net rate, fam trip). Rewrite it for travelers." };
+      }
+      const violation = policyViolation(publicText) ?? restrictedBrand(`${deal.supplier} ${deal.title}`);
+      if (violation) {
+        return { ok: false as const, error: violation };
       }
     }
 
