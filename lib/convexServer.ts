@@ -13,6 +13,7 @@ export const portalListAccess = makeFunctionReference<"query">("portal:listAcces
 export const portalRevokeAccess = makeFunctionReference<"mutation">("portal:revokeAccess");
 export const quoteTravelerRespond = makeFunctionReference<"mutation">("quotes:travelerRespond");
 export const itineraryListByRequest = makeFunctionReference<"query">("itineraries:listByRequest");
+export const itineraryListAll = makeFunctionReference<"query">("itineraries:listAll");
 export const itineraryUpsert = makeFunctionReference<"mutation">("itineraries:upsert");
 export const analyticsTrack = makeFunctionReference<"mutation">("analytics:track");
 export const analyticsSummary = makeFunctionReference<"query">("analytics:summary");

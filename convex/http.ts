@@ -91,8 +91,10 @@ http.route({ path: "/admin/leads", method: "DELETE", handler: httpAction(async (
 http.route({ path: "/admin/quotes", method: "GET", handler: httpAction(async (ctx, request) => {
   if (!isAdmin(request)) return unauthorized();
   const requestId = new URL(request.url).searchParams.get("requestId");
-  if (!requestId) return new Response(JSON.stringify({ error: "requestId is required" }), { status: 400, headers: jsonHeaders });
-  const quotes = await ctx.runQuery(internal.quotes.listByRequestInternal, { travelRequestId: requestId as Id<"travelRequests"> });
+  // Without a trip id the screen shows every quote, so the sidebar link works standalone.
+  const quotes = requestId
+    ? await ctx.runQuery(internal.quotes.listByRequestInternal, { travelRequestId: requestId as Id<"travelRequests"> })
+    : await ctx.runQuery(internal.quotes.listAllInternal, {});
   return new Response(JSON.stringify({ quotes }), { status: 200, headers: jsonHeaders });
 }) });
 
