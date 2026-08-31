@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 /** The enquiry form now lives on /contact; keep old links (and their prefill) working. */
 export default async function PlanPage({
@@ -7,5 +7,5 @@ export default async function PlanPage({
   searchParams: Promise<{ destination?: string }>;
 }) {
   const { destination } = await searchParams;
-  redirect(destination ? `/contact?destination=${encodeURIComponent(destination)}` : "/contact");
+  permanentRedirect(destination ? `/contact?destination=${encodeURIComponent(destination)}` : "/contact");
 }

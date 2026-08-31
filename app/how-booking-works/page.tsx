@@ -16,8 +16,10 @@ import {
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { BOOKING_BOUNDARY, HOST_AGENCY } from "@/lib/hostAgency";
+import { canonicalMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/how-booking-works"),
   title: "How Booking Works",
   description:
     "See how Waylume inspiration and AI-assisted research become advisor-researched options and secure travel bookings through Fora-approved and supplier workflows.",

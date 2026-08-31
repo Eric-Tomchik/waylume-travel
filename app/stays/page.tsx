@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import MarketingShell, { PageHead } from "@/components/wl/MarketingShell";
 import { HeartButton, Lightbox, Reveal } from "@/components/wl/Interactive";
+import { canonicalMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/stays"),
   title: "Stays & Ratings",
   description:
     "Hotel and resort ratings from an independent advisor — the room you'll actually get, the service floor on a bad day, the food, and whether it earns its reputation.",

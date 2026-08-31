@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { canonical, OG_IMAGE, travelAgencyJsonLd, websiteJsonLd } from "@/lib/seo";
 import "./globals.css";
 import "./phase2.css";
 import "./phase3.css";
@@ -24,8 +26,16 @@ export const metadata: Metadata = {
     url: "https://www.waylumetravel.com",
     siteName: "Waylume Travel",
     type: "website",
+    images: [OG_IMAGE],
   },
+  alternates: { canonical: canonical("/") },
   robots: { index: true, follow: true },
+  twitter: {
+    card: "summary_large_image",
+    title: "Waylume Travel | Ideas first. Your trip follows.",
+    description: "Travel inspiration, hotel ratings, promotions and live travel news \u2014 planned and booked by a real advisor.",
+    images: [OG_IMAGE.url],
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -41,6 +51,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script
           dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }}
         />
+        <JsonLd data={[travelAgencyJsonLd, websiteJsonLd]} />
       </head>
       <body>
         {children}

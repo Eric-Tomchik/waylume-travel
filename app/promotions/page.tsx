@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import MarketingShell, { PageHead } from "@/components/wl/MarketingShell";
 import { Reveal } from "@/components/wl/Interactive";
+import { canonicalMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/promotions"),
   title: "Promotions",
   description:
     "Current supplier promotions and preferred-partner perks bookable through Waylume Travel — cruise credits, hotel amenities, villa early-bird pricing.",
