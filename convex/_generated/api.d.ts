@@ -12,6 +12,7 @@ import type * as adminSettings from "../adminSettings.js";
 import type * as analytics from "../analytics.js";
 import type * as dashboard from "../dashboard.js";
 import type * as foraDeals from "../foraDeals.js";
+import type * as foraPolicies from "../foraPolicies.js";
 import type * as http from "../http.js";
 import type * as itineraries from "../itineraries.js";
 import type * as notifications from "../notifications.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
   dashboard: typeof dashboard;
   foraDeals: typeof foraDeals;
+  foraPolicies: typeof foraPolicies;
   http: typeof http;
   itineraries: typeof itineraries;
   notifications: typeof notifications;
