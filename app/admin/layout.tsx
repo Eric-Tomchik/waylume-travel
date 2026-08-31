@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import "./admin.css";
+import AdminSidebarGate from "@/components/AdminSidebarGate";
 
 /**
  * Applies the saved appearance before first paint so the dashboard never
@@ -18,6 +19,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: bootstrap }} />
+      <AdminSidebarGate />
       {children}
     </>
   );

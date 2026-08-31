@@ -231,3 +231,87 @@
   border-color: var(--admin-line);
   color: var(--admin-text);
 }
+
+/* ---------------------------------------------------------------
+   Left-hand dashboard navigation
+   --------------------------------------------------------------- */
+.admin-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 244px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px 14px 18px;
+  background: var(--admin-surface);
+  border-right: 1px solid var(--admin-line);
+  transition: width .18s ease, transform .22s ease;
+}
+.admin-sidebar.is-collapsed { width: 74px; }
+
+.admin-sidebar-brand { display: flex; align-items: center; gap: 8px; }
+.admin-sidebar-brand > a { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; text-decoration: none; color: inherit; }
+.admin-sidebar-mark {
+  width: 36px; height: 36px; flex: none; border-radius: 12px;
+  display: grid; place-items: center; font-weight: 800; font-size: 15px;
+  color: #fff; background: var(--admin-accent);
+}
+.admin-sidebar-wordmark { min-width: 0; }
+.admin-sidebar-wordmark b { display: block; font-size: 14px; line-height: 1.2; }
+.admin-sidebar-wordmark small { color: var(--admin-muted); font-size: 11px; }
+.admin-sidebar-collapse {
+  flex: none; width: 26px; height: 26px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--admin-line); background: var(--admin-surface-2);
+  color: var(--admin-muted); font-size: 12px; line-height: 1;
+}
+.admin-sidebar-collapse:hover { color: var(--admin-text); }
+
+.admin-sidebar-nav { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; flex: 1; }
+.admin-sidebar-group { display: flex; flex-direction: column; gap: 2px; }
+.admin-sidebar-heading {
+  padding: 0 10px 4px; font-size: 10px; font-weight: 800; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--admin-muted);
+}
+.admin-sidebar a:not(.admin-sidebar-brand > a) {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 10px; border-radius: 11px;
+  color: var(--admin-text); text-decoration: none;
+  font-size: 13.5px; font-weight: 600; white-space: nowrap;
+}
+.admin-sidebar a:not(.admin-sidebar-brand > a):hover { background: var(--admin-surface-2); }
+.admin-sidebar a.is-active { background: color-mix(in srgb, var(--admin-accent) 14%, transparent); color: var(--admin-accent); }
+.admin-sidebar-icon { width: 20px; flex: none; text-align: center; font-size: 14px; opacity: .85; }
+.admin-sidebar-footer { border-top: 1px solid var(--admin-line); padding-top: 10px; }
+.admin-sidebar-exit { color: var(--admin-muted) !important; font-weight: 600; }
+
+.admin-sidebar.is-collapsed .admin-sidebar-wordmark,
+.admin-sidebar.is-collapsed .admin-sidebar-label,
+.admin-sidebar.is-collapsed .admin-sidebar-heading { display: none; }
+.admin-sidebar.is-collapsed a:not(.admin-sidebar-brand > a) { justify-content: center; padding: 10px 0; }
+.admin-sidebar.is-collapsed .admin-sidebar-group { gap: 4px; }
+
+/* Content offset (only when the sidebar is actually rendered). */
+body:has(.admin-sidebar) .admin-shell { padding-left: 244px; }
+body:has(.admin-sidebar.is-collapsed) .admin-shell { padding-left: 74px; }
+
+.admin-sidebar-trigger { display: none; }
+.admin-sidebar-scrim { display: none; }
+
+@media (max-width: 900px) {
+  body:has(.admin-sidebar) .admin-shell { padding-left: 0; }
+  .admin-sidebar { transform: translateX(-105%); box-shadow: 0 20px 50px rgba(4, 20, 34, .25); }
+  .admin-sidebar.is-open { transform: none; }
+  .admin-sidebar.is-collapsed { width: 244px; }
+  .admin-sidebar.is-collapsed .admin-sidebar-wordmark,
+  .admin-sidebar.is-collapsed .admin-sidebar-label,
+  .admin-sidebar.is-collapsed .admin-sidebar-heading { display: revert; }
+  .admin-sidebar.is-collapsed a:not(.admin-sidebar-brand > a) { justify-content: flex-start; padding: 9px 10px; }
+  .admin-sidebar-collapse { display: none; }
+  .admin-sidebar-trigger {
+    display: block; position: fixed; top: 14px; left: 14px; z-index: 45;
+    width: 40px; height: 40px; border-radius: 12px; cursor: pointer;
+    border: 1px solid var(--admin-line); background: var(--admin-surface); color: var(--admin-text);
+  }
+  .admin-sidebar-scrim { display: block; position: fixed; inset: 0; z-index: 39; background: rgba(4, 20, 34, .45); }
+}
