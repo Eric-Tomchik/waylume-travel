@@ -1,5 +1,10 @@
-import { internalMutation, internalQuery, mutation } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+
+function requireAdmin(secret: string) {
+  const expected = process.env.WAYLUME_ADMIN_TOKEN;
+  if (!expected || secret !== expected) throw new Error("Unauthorized");
+}
 
 const quoteStatus = v.union(v.literal("draft"), v.literal("sent"), v.literal("accepted"), v.literal("expired"), v.literal("declined"));
 
@@ -65,5 +70,35 @@ export const travelerRespond = mutation({
     await ctx.db.patch(access.travelRequestId, { status: "quoted", updatedAt: now });
     await ctx.db.insert("analyticsEvents", { event: `quote_${args.response}`, surface: "traveler_portal", travelRequestId: access.travelRequestId, quoteId: args.quoteId, createdAt: now });
     return { ok: true, status: args.response };
+  },
+});
+
+/** Quote plus the traveler contact details needed to email it out. */
+export const getForAdmin = query({
+  args: { adminSecret: v.string(), id: v.id("quotes") },
+  handler: async (ctx, args) => {
+    requireAdmin(args.adminSecret);
+    const quote = await ctx.db.get(args.id);
+    if (!quote) return null;
+    const trip = await ctx.db.get(quote.travelRequestId);
+    return {
+      quote,
+      trip: trip ? { _id: trip._id, name: trip.name, email: trip.email, destination: trip.destination, dates: trip.dates } : null,
+    };
+  },
+});
+
+/** Marks a quote as sent to the traveler once the email has gone out. */
+export const markSentForAdmin = mutation({
+  args: { adminSecret: v.string(), id: v.id("quotes") },
+  handler: async (ctx, args) => {
+    requireAdmin(args.adminSecret);
+    const quote = await ctx.db.get(args.id);
+    if (!quote) throw new Error("Quote not found");
+    const now = Date.now();
+    if (quote.status === "draft") await ctx.db.patch(args.id, { status: "sent", updatedAt: now });
+    await ctx.db.patch(quote.travelRequestId, { status: "quoted", updatedAt: now });
+    await ctx.db.insert("analyticsEvents", { event: "quote_emailed", surface: "admin", travelRequestId: quote.travelRequestId, quoteId: args.id, createdAt: now });
+    return { ok: true };
   },
 });
