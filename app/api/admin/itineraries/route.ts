@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/adminAuth";
-import { getConvexServerClient, itineraryListByRequest, itineraryUpsert } from "@/lib/convexServer";
+import { getConvexServerClient, itineraryListAll, itineraryListByRequest, itineraryUpsert } from "@/lib/convexServer";
 
 function getAdminSecret(request: Request) {
   const expected = process.env.WAYLUME_ADMIN_TOKEN;
@@ -11,10 +11,12 @@ export async function GET(request: Request) {
   const adminSecret = getAdminSecret(request);
   if (!adminSecret) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const requestId = new URL(request.url).searchParams.get("requestId");
-  if (!requestId) return NextResponse.json({ error: "requestId is required" }, { status: 400 });
   try {
     const client = getConvexServerClient();
-    const itineraries = await client.query(itineraryListByRequest, { adminSecret, travelRequestId: requestId });
+    // Without a trip id the screen lists every itinerary.
+    const itineraries = requestId
+      ? await client.query(itineraryListByRequest, { adminSecret, travelRequestId: requestId })
+      : await client.query(itineraryListAll, { adminSecret });
     return NextResponse.json({ itineraries }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json({ error: "Unable to load itineraries" }, { status: 400 });

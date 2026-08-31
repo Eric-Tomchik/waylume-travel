@@ -8,6 +8,25 @@ export const listByRequestInternal = internalQuery({
   handler: async (ctx, args) => await ctx.db.query("quotes").withIndex("by_request", q => q.eq("travelRequestId", args.travelRequestId)).order("desc").collect(),
 });
 
+/**
+ * Every quote across all trips, newest first, with enough trip context to be
+ * usable on the standalone /admin/quotes screen (no requestId in the URL).
+ */
+export const listAllInternal = internalQuery({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const quotes = await ctx.db.query("quotes").order("desc").take(Math.min(args.limit ?? 100, 300));
+    return await Promise.all(quotes.map(async quote => {
+      const trip = await ctx.db.get(quote.travelRequestId);
+      return {
+        ...quote,
+        travelerName: trip?.name,
+        destination: trip?.destination,
+      };
+    }));
+  },
+});
+
 export const createInternal = internalMutation({
   args: {
     travelRequestId: v.id("travelRequests"), title: v.string(), summary: v.string(), amount: v.optional(v.number()),

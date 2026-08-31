@@ -16,6 +16,19 @@ export const listByRequest = query({
   },
 });
 
+/** Every itinerary across all trips, for the standalone /admin/itineraries screen. */
+export const listAll = query({
+  args: { adminSecret: v.string(), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    requireAdmin(args.adminSecret);
+    const itineraries = await ctx.db.query("itineraries").order("desc").take(Math.min(args.limit ?? 100, 300));
+    return await Promise.all(itineraries.map(async itinerary => {
+      const trip = await ctx.db.get(itinerary.travelRequestId);
+      return { ...itinerary, travelerName: trip?.name, destination: trip?.destination };
+    }));
+  },
+});
+
 export const upsert = mutation({
   args: {
     adminSecret: v.string(),
