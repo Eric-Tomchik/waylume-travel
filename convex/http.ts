@@ -176,6 +176,7 @@ http.route({ path: "/admin/fora-deals", method: "GET", handler: httpAction(async
     search: params.get("search") || undefined,
     supplierType: params.get("supplierType") || undefined,
     publishedOnly: params.get("publishedOnly") === "true" ? true : undefined,
+    status: params.get("status") || undefined,
     limit: Number.isFinite(limit) ? limit : 100,
     offset: Number(params.get("offset") || 0) || undefined,
   });
@@ -198,6 +199,20 @@ http.route({ path: "/admin/fora-deals", method: "PATCH", handler: httpAction(asy
     if (!result.ok) return new Response(JSON.stringify({ error: result.error }), { status: 400, headers: jsonHeaders });
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: jsonHeaders });
   } catch { return new Response(JSON.stringify({ error: "Unable to update deal" }), { status: 400, headers: jsonHeaders }); }
+}) });
+
+http.route({ path: "/admin/fora-deals/bulk", method: "POST", handler: httpAction(async (ctx, request) => {
+  if (!isAdmin(request)) return unauthorized();
+  try {
+    const body = await request.json();
+    if (!Array.isArray(body.ids) || !body.ids.length) return new Response(JSON.stringify({ error: "ids array is required" }), { status: 400, headers: jsonHeaders });
+    if (body.ids.length > 500) return new Response(JSON.stringify({ error: "Select at most 500 deals at a time" }), { status: 400, headers: jsonHeaders });
+    const result = await ctx.runMutation(internal.foraDeals.bulkSetPublishedInternal, {
+      ids: body.ids as Array<Id<"foraDeals">>,
+      published: Boolean(body.published),
+    });
+    return new Response(JSON.stringify({ ok: true, ...result }), { status: 200, headers: jsonHeaders });
+  } catch { return new Response(JSON.stringify({ error: "Unable to update these deals" }), { status: 400, headers: jsonHeaders }); }
 }) });
 
 http.route({ path: "/admin/fora-deals/import", method: "POST", handler: httpAction(async (ctx, request) => {
