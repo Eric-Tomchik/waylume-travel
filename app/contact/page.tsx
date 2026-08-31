@@ -5,8 +5,10 @@ import MarketingShell from "@/components/wl/MarketingShell";
 import ContactForm from "@/components/wl/ContactForm";
 import { Reveal } from "@/components/wl/Interactive";
 import { HOST_AGENCY } from "@/lib/hostAgency";
+import { canonicalMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/contact"),
   title: "Contact",
   description:
     "Talk to Eric Tomchik, Independent Advisor of Fora Travel, Inc. Complimentary planning, a reply within one business day, and a real person on the other end of the phone.",

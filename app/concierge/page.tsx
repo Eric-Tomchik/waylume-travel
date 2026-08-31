@@ -4,8 +4,10 @@ import { ArrowLeft, ShieldCheck, Sparkles } from "lucide-react";
 import AiConcierge from "@/components/AiConcierge";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import { canonicalMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/concierge"),
   title: "AI Travel Concierge",
   description: "Explore trip possibilities conversationally with Waylume AI, then send the completed brief to a real travel advisor for current supplier research and final pricing.",
 };

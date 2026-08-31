@@ -6,6 +6,8 @@ import SaveShareActions from "@/components/SaveShareActions";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getJournalArticle, journalArticles } from "@/lib/journal";
+import { JsonLd } from "@/components/JsonLd";
+import { articleJsonLd, breadcrumbJsonLd, canonicalMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -17,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = getJournalArticle(slug);
   if (!article) return { title: "Article not found" };
-  return { title: article.title, description: article.excerpt, openGraph: { title: article.title, description: article.excerpt, type: "article" } };
+  return { ...canonicalMetadata(`/journal/${article.slug}`), title: article.title, description: article.excerpt, openGraph: { title: article.title, description: article.excerpt, type: "article" } };
 }
 
 export default async function JournalArticlePage({ params }: Props) {
@@ -27,6 +29,12 @@ export default async function JournalArticlePage({ params }: Props) {
 
   return (
     <main className="inspiration-site">
+      <JsonLd
+        data={[
+          articleJsonLd(article),
+          breadcrumbJsonLd([["Travel News", "/journal"], [article.title, `/journal/${article.slug}`]]),
+        ]}
+      />
       <SiteHeader />
       <article>
         <header className={`article-hero tone-${article.color}`}>

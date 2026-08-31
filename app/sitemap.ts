@@ -2,10 +2,12 @@ import type { MetadataRoute } from "next";
 import { destinations } from "@/lib/destinations";
 import { journalArticles } from "@/lib/journal";
 
-const origin = "https://www.waylumetravel.com";
+import { SITE_ORIGIN } from "@/lib/seo";
+
+const origin = SITE_ORIGIN;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ["", "/destinations", "/stays", "/promotions", "/journal", "/library", "/know-before-you-go", "/contact", "/how-booking-works"];
+  const staticRoutes = ["", "/destinations", "/stays", "/promotions", "/journal", "/library", "/know-before-you-go", "/contact", "/how-booking-works", "/concierge", "/smart-planner"];
   return [
     ...staticRoutes.map((route) => ({ url: `${origin}${route}`, changeFrequency: route === "" ? "weekly" as const : "monthly" as const, priority: route === "" ? 1 : 0.8 })),
     ...destinations.map((destination) => ({ url: `${origin}/destinations/${destination.slug}`, changeFrequency: "monthly" as const, priority: 0.75 })),

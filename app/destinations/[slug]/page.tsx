@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import MarketingShell from "@/components/wl/MarketingShell";
 import { HeartButton, Reveal } from "@/components/wl/Interactive";
 import { bestMonths, destinations, getDestination, MONTH_LABELS } from "@/lib/destinations";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, canonicalMetadata, touristDestinationJsonLd } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -16,6 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const destination = getDestination(slug);
   if (!destination) return { title: "Destination not found" };
   return {
+    ...canonicalMetadata(`/destinations/${destination.slug}`),
     title: `${destination.name} — when to go and what to build the trip around`,
     description: `${destination.tagline} When to go, the experiences worth planning around, where to base yourself, and how to book it with an independent travel advisor.`,
     openGraph: {
@@ -32,6 +35,11 @@ export default async function DestinationDetail({ params }: Props) {
   const destination = getDestination(slug);
   if (!destination) notFound();
 
+  const structuredData = [
+    touristDestinationJsonLd(destination),
+    breadcrumbJsonLd([["Destinations", "/destinations"], [destination.name, `/destinations/${destination.slug}`]]),
+  ];
+
   const contactHref = `/contact?destination=${encodeURIComponent(destination.name)}`;
   const related = destinations
     .filter((item) => item.slug !== destination.slug)
@@ -42,6 +50,7 @@ export default async function DestinationDetail({ params }: Props) {
 
   return (
     <MarketingShell cta={false}>
+      <JsonLd data={structuredData} />
       <section className="dest-hero">
         <div className="dest-hero-bg" style={{ backgroundImage: `url('/photos/${destination.photo}.webp')` }} />
         <div className="shell dest-hero-in">

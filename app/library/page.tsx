@@ -3,8 +3,10 @@ import Link from "next/link";
 import MarketingShell, { PageHead } from "@/components/wl/MarketingShell";
 import BookLibrary from "@/components/wl/BookLibrary";
 import { BOOKS } from "@/lib/books";
+import { canonicalMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/library"),
   title: "Travel Library",
   description:
     "Fifty travel books worth your time — inspiration, travel writing, food and culture, photography and practical guides, chosen by an independent travel advisor.",

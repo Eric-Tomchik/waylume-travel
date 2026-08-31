@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import MarketingShell, { PageHead } from "@/components/wl/MarketingShell";
 import { AdvisoryBoard } from "@/components/wl/Live";
+import { canonicalMetadata } from "@/lib/seo";
 
 export const revalidate = 21600;
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/know-before-you-go"),
   title: "Know Before You Go",
   description:
     "Entry requirements, passport rules, insurance and booking timelines for US travelers — plus a live feed of current U.S. State Department travel advisories.",

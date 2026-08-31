@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import MarketingShell, { PageHead } from "@/components/wl/MarketingShell";
 import DestinationFinder from "@/components/wl/DestinationFinder";
 import { Reveal } from "@/components/wl/Interactive";
+import { canonicalMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/destinations"),
   title: "Destinations",
   description:
     "Where to go and when: an interactive destination finder covering season, trip style and region, from an independent travel advisor.",

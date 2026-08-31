@@ -3,10 +3,12 @@ import Link from "next/link";
 import MarketingShell, { PageHead } from "@/components/wl/MarketingShell";
 import { NewsWire } from "@/components/wl/Live";
 import { Reveal } from "@/components/wl/Interactive";
+import { canonicalMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/journal"),
   title: "Travel News",
   description:
     "Travel industry news, entry-requirement changes and destination reporting — filtered down to what actually changes your plans, plus a live wire from the travel press.",
