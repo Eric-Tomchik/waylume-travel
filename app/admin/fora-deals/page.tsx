@@ -23,9 +23,24 @@ type Deal = {
   published: boolean;
   sortOrder: number;
   tradeLanguage: boolean;
+  expired?: boolean;
+  daysUntilBookingEnd?: number | null;
+  blocker?: string | null;
 };
 
-type Stats = { total: number; published: number; readyToPublish: number; lastImportedAt: number; byType: Record<string, number> };
+type Stats = { total: number; published: number; readyToPublish: number; needsCopy: number; expiredPublished: number; lastImportedAt: number; byType: Record<string, number> };
+
+const STATUS_FILTERS: Array<[string, string]> = [
+  ["all", "Every deal"],
+  ["ready", "Ready to publish"],
+  ["needs_copy", "Needs traveler copy"],
+  ["blocked", "Blocked by policy"],
+  ["published", "Published"],
+  ["unpublished", "Not published"],
+  ["expired", "Expired window"],
+];
+
+const PAGE_SIZE = 100;
 
 const TYPES = ["hotel", "cruise", "DMC", "multiday_tours", "home_villa", "Package", "day_tours_and_activities", "ground_transportation"];
 
@@ -50,7 +65,11 @@ export default function ForaDealsAdminPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [search, setSearch] = useState("");
   const [supplierType, setSupplierType] = useState("");
-  const [publishedOnly, setPublishedOnly] = useState(false);
+  const [status, setStatus] = useState("all");
+  const [offset, setOffset] = useState(0);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [failures, setFailures] = useState<Array<{ id: string; title: string; error: string }>>([]);
   const [editing, setEditing] = useState<Deal | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
   const [draftSummary, setDraftSummary] = useState("");
@@ -68,8 +87,9 @@ export default function ForaDealsAdminPage() {
     const params = new URLSearchParams();
     if (search.trim()) params.set("search", search.trim());
     if (supplierType) params.set("supplierType", supplierType);
-    if (publishedOnly) params.set("publishedOnly", "true");
-    params.set("limit", "150");
+    if (status !== "all") params.set("status", status);
+    params.set("limit", String(PAGE_SIZE));
+    params.set("offset", String(offset));
 
     const response = await fetch(`/api/admin/fora-deals?${params.toString()}`, { headers: authHeaders(), cache: "no-store" });
     setLoading(false);
@@ -83,7 +103,13 @@ export default function ForaDealsAdminPage() {
     setDeals(data.deals ?? []);
     setTotal(data.total ?? 0);
     setStats(data.stats ?? null);
-  }, [authHeaders, search, supplierType, publishedOnly]);
+  }, [authHeaders, search, supplierType, status, offset]);
+
+  // Paging and the status filter re-query immediately; free-text search waits for submit.
+  useEffect(() => {
+    if (authorized) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offset, status]);
 
   useEffect(() => {
     hasAdminSession().then(async ok => {
@@ -108,6 +134,53 @@ export default function ForaDealsAdminPage() {
     }
     await load();
     return true;
+  }
+
+  function toggleSelected(id: string) {
+    setSelected(current => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  const visibleIds = deals.map(deal => deal._id);
+  const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selected.has(id));
+
+  function toggleSelectAll() {
+    setSelected(current => {
+      const next = new Set(current);
+      if (allVisibleSelected) visibleIds.forEach(id => next.delete(id));
+      else visibleIds.forEach(id => next.add(id));
+      return next;
+    });
+  }
+
+  async function bulkPublish(published: boolean) {
+    if (!selected.size) return;
+    setBulkBusy(true);
+    setError("");
+    setMessage("");
+    setFailures([]);
+    const response = await fetch("/api/admin/fora-deals/bulk", {
+      method: "POST",
+      headers: authHeaders(true),
+      body: JSON.stringify({ ids: Array.from(selected), published }),
+    });
+    const data = await response.json().catch(() => ({}));
+    setBulkBusy(false);
+    if (!response.ok) {
+      setError(data.error || "Unable to update the selected deals.");
+      return;
+    }
+    setFailures(data.failures ?? []);
+    const skipped = (data.failures ?? []).length;
+    setMessage(
+      `${data.updated} deal${data.updated === 1 ? "" : "s"} ${published ? "published" : "unpublished"}` +
+      (skipped ? ` · ${skipped} skipped — see below.` : "."),
+    );
+    setSelected(new Set());
+    await load();
   }
 
   async function togglePublish(deal: Deal) {
@@ -165,10 +238,11 @@ export default function ForaDealsAdminPage() {
                 <article>
                   <div>
                     <small>Imported from Fora</small>
-                    <h3>{stats.total} deals · {stats.published} live · {stats.readyToPublish} drafted</h3>
+                    <h3>{stats.total} deals · {stats.published} live · {stats.readyToPublish} ready to publish</h3>
                     <p>
                       Nothing reaches the public site until you publish it. Advisor copy from Fora stays internal —
-                      write traveler-facing wording first, then publish.
+                      write traveler-facing wording first, then publish. {stats.needsCopy} still need traveler copy
+                      {stats.expiredPublished ? `, and ${stats.expiredPublished} published deal${stats.expiredPublished === 1 ? " has" : "s have"} an expired window` : ""}.
                     </p>
                   </div>
                 </article>
@@ -204,7 +278,7 @@ export default function ForaDealsAdminPage() {
               </form>
             )}
 
-            <form className="cms-form" onSubmit={e => { e.preventDefault(); load(); }}>
+            <form className="cms-form" onSubmit={e => { e.preventDefault(); setOffset(0); load(); }}>
               <label>Search<input value={search} onChange={e => setSearch(e.target.value)} placeholder="Supplier, title or destination" /></label>
               <label>Type
                 <select value={supplierType} onChange={e => setSupplierType(e.target.value)}>
@@ -212,11 +286,40 @@ export default function ForaDealsAdminPage() {
                   {TYPES.map(type => <option key={type} value={type}>{type}</option>)}
                 </select>
               </label>
-              <label className="check-label">
-                <input type="checkbox" checked={publishedOnly} onChange={e => setPublishedOnly(e.target.checked)} /> Published only
+              <label>Status
+                <select value={status} onChange={e => { setOffset(0); setStatus(e.target.value); }}>
+                  {STATUS_FILTERS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
               </label>
               <div className="wide cms-actions"><button className="button">Apply filters</button></div>
             </form>
+
+            <div className="bulk-bar">
+              <label className="check-label">
+                <input type="checkbox" checked={allVisibleSelected} onChange={toggleSelectAll} disabled={!deals.length} />
+                {allVisibleSelected ? "Clear this page" : "Select all on this page"}
+              </label>
+              <span className="bulk-count">{selected.size} selected</span>
+              <div className="cms-actions">
+                <button className="button small" disabled={!selected.size || bulkBusy} onClick={() => bulkPublish(true)}>
+                  {bulkBusy ? "Working…" : "Publish selected"}
+                </button>
+                <button className="ghost small" disabled={!selected.size || bulkBusy} onClick={() => bulkPublish(false)}>
+                  Unpublish selected
+                </button>
+                {Boolean(selected.size) && (
+                  <button className="ghost small" disabled={bulkBusy} onClick={() => setSelected(new Set())}>Clear selection</button>
+                )}
+              </div>
+            </div>
+
+            {Boolean(failures.length) && (
+              <div className="bulk-failures">
+                <strong>{failures.length} deal{failures.length === 1 ? " was" : "s were"} skipped:</strong>
+                <ul>{failures.slice(0, 12).map(failure => <li key={failure.id}><b>{failure.title}</b> — {failure.error}</li>)}</ul>
+                {failures.length > 12 && <small>…and {failures.length - 12} more with the same kinds of issue.</small>}
+              </div>
+            )}
 
             {message && <p className="success">{message}</p>}
             {error && <p className="error">{error}</p>}
@@ -230,19 +333,33 @@ export default function ForaDealsAdminPage() {
             )}
 
             {!loading && Boolean(deals.length) && (
-              <p><small>Showing {deals.length} of {total} matching deals.</small></p>
+              <div className="deal-pager">
+                <small>Showing {offset + 1}–{offset + deals.length} of {total} matching deals.</small>
+                <div className="cms-actions">
+                  <button className="ghost small" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}>Previous</button>
+                  <button className="ghost small" disabled={offset + deals.length >= total} onClick={() => setOffset(offset + PAGE_SIZE)}>Next</button>
+                </div>
+              </div>
             )}
 
             <div className="cms-list">
               {deals.map(deal => (
-                <article key={deal._id}>
+                <article key={deal._id} className={selected.has(deal._id) ? "is-selected" : undefined}>
                   <div>
+                    <label className="check-label select-deal">
+                      <input type="checkbox" checked={selected.has(deal._id)} onChange={() => toggleSelected(deal._id)} />
+                      Select
+                    </label>
                     <small>
                       {deal.published ? "● Live on site" : "○ Not published"}
                       {" · "}{deal.supplierType || "other"}
                       {deal.exclusiveToFora ? " · Fora exclusive" : ""}
                       {deal.tradeLanguage ? " · ⚠ advisor-only wording in source" : ""}
                       {restrictedBrand(`${deal.supplier} ${deal.title}`) ? " · ⛔ partner brand restricted by Fora policy" : ""}
+                      {deal.expired ? " · ⌛ window closed" : ""}
+                      {!deal.expired && typeof deal.daysUntilBookingEnd === "number" && deal.daysUntilBookingEnd <= 14
+                        ? ` · closes in ${deal.daysUntilBookingEnd} day${deal.daysUntilBookingEnd === 1 ? "" : "s"}`
+                        : ""}
                     </small>
                     <h3>{deal.publicTitle || deal.title}</h3>
                     <p>
@@ -250,14 +367,15 @@ export default function ForaDealsAdminPage() {
                       Book: {window_(deal.bookingStart, deal.bookingEnd)} · Travel: {window_(deal.travelStart, deal.travelEnd)}
                     </p>
                     <p>{deal.publicSummary || <em>No traveler-facing copy yet — write it before publishing.</em>}</p>
+                    {!deal.published && deal.blocker && <p className="deal-blocker">{deal.blocker}</p>}
                   </div>
                   <div className="cms-actions">
                     <button className="ghost" onClick={() => startEdit(deal)}>Edit copy</button>
                     <button
                       className={deal.published ? "ghost" : "button"}
                       onClick={() => togglePublish(deal)}
-                      disabled={!deal.published && !(deal.publicSummary || "").trim()}
-                      title={!deal.published && !(deal.publicSummary || "").trim() ? "Add traveler-facing copy first" : undefined}
+                      disabled={!deal.published && Boolean(deal.blocker)}
+                      title={!deal.published && deal.blocker ? deal.blocker : undefined}
                     >
                       {deal.published ? "Unpublish" : "Publish"}
                     </button>

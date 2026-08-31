@@ -10,6 +10,7 @@
 
 import type * as adminSettings from "../adminSettings.js";
 import type * as analytics from "../analytics.js";
+import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
 import type * as foraDeals from "../foraDeals.js";
 import type * as foraPolicies from "../foraPolicies.js";
@@ -32,6 +33,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   adminSettings: typeof adminSettings;
   analytics: typeof analytics;
+  crons: typeof crons;
   dashboard: typeof dashboard;
   foraDeals: typeof foraDeals;
   foraPolicies: typeof foraPolicies;

@@ -92,6 +92,49 @@ function toPublic(deal: {
   };
 }
 
+/** ISO date (YYYY-MM-DD) for "today" in UTC — Fora windows are plain dates. */
+export function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+type WindowFields = { bookingEnd?: string; travelEnd?: string };
+
+/** A deal is dead once its booking window closed, or once all travel is in the past. */
+export function isExpired(deal: WindowFields, today = todayIso()) {
+  if (deal.bookingEnd && deal.bookingEnd < today) return true;
+  if (deal.travelEnd && deal.travelEnd < today) return true;
+  return false;
+}
+
+/** Days until the booking window closes, or null when there is no end date. */
+export function daysUntilBookingEnd(deal: WindowFields, today = todayIso()) {
+  if (!deal.bookingEnd) return null;
+  const end = Date.parse(`${deal.bookingEnd}T00:00:00Z`);
+  const now = Date.parse(`${today}T00:00:00Z`);
+  if (!Number.isFinite(end)) return null;
+  return Math.round((end - now) / 86_400_000);
+}
+
+/**
+ * Everything blocking a deal from going public, or null when it is publishable.
+ * Shared by the single-deal update, the bulk action and the admin list so the
+ * rules can never drift apart.
+ */
+export function publishBlocker(deal: {
+  supplier: string; title: string; publicTitle?: string; publicSummary?: string; bookingEnd?: string; travelEnd?: string;
+}, today = todayIso()): string | null {
+  const publicSummary = (deal.publicSummary || "").trim();
+  if (!publicSummary) return "Write a traveler-facing summary before publishing this deal.";
+  const publicText = `${deal.publicTitle || ""} ${publicSummary}`;
+  if (hasTradeLanguage(publicText)) {
+    return "Public copy still contains advisor-only language (commission, net rate, fam trip). Rewrite it for travelers.";
+  }
+  const violation = policyViolation(publicText) ?? restrictedBrand(`${deal.supplier} ${deal.title}`);
+  if (violation) return violation;
+  if (isExpired(deal, today)) return "This offer's booking or travel window has already closed.";
+  return null;
+}
+
 export const listPublishedInternal = internalQuery({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
@@ -108,6 +151,7 @@ export const listForAdminInternal = internalQuery({
     search: v.optional(v.string()),
     supplierType: v.optional(v.string()),
     publishedOnly: v.optional(v.boolean()),
+    status: v.optional(v.string()),
     limit: v.optional(v.number()),
     offset: v.optional(v.number()),
   },
@@ -125,6 +169,23 @@ export const listForAdminInternal = internalQuery({
         d.title.toLowerCase().includes(search) ||
         d.supplier.toLowerCase().includes(search) ||
         (d.location || "").toLowerCase().includes(search));
+    }
+
+    const today = todayIso();
+    if (args.status && args.status !== "all") {
+      deals = deals.filter(d => {
+        const blocker = publishBlocker(d, today);
+        switch (args.status) {
+          case "published": return d.published;
+          case "unpublished": return !d.published;
+          // Copy written, no policy or expiry blocker — one click from going live.
+          case "ready": return !d.published && !blocker;
+          case "needs_copy": return !(d.publicSummary || "").trim();
+          case "blocked": return Boolean((d.publicSummary || "").trim() && blocker && !isExpired(d, today));
+          case "expired": return isExpired(d, today);
+          default: return true;
+        }
+      });
     }
 
     deals.sort((a, b) => Number(b.published) - Number(a.published) || a.sortOrder - b.sortOrder || a.supplier.localeCompare(b.supplier));
@@ -150,6 +211,9 @@ export const listForAdminInternal = internalQuery({
         published: d.published,
         sortOrder: d.sortOrder,
         tradeLanguage: d.tradeLanguage,
+        expired: isExpired(d, today),
+        daysUntilBookingEnd: daysUntilBookingEnd(d, today),
+        blocker: publishBlocker(d, today),
       })),
     };
   },
@@ -164,7 +228,9 @@ export const statsInternal = internalQuery({
     return {
       total: deals.length,
       published: deals.filter(d => d.published).length,
-      readyToPublish: deals.filter(d => !d.published && (d.publicSummary || "").trim().length > 0).length,
+      readyToPublish: deals.filter(d => !d.published && !publishBlocker(d)).length,
+      needsCopy: deals.filter(d => !(d.publicSummary || "").trim()).length,
+      expiredPublished: deals.filter(d => d.published && isExpired(d)).length,
       lastImportedAt: deals.reduce((max, d) => Math.max(max, d.importedAt), 0),
       byType,
     };
@@ -234,19 +300,10 @@ export const updateInternal = internalMutation({
     const publicTitle = args.publicTitle === undefined ? deal.publicTitle : args.publicTitle.trim();
     const published = args.published === undefined ? deal.published : args.published;
 
-    // Publishing gate: traveler-facing copy must exist and must be free of trade language.
+    // Publishing gate: copy exists, reads for travelers, respects Fora policy, still in window.
     if (published) {
-      if (!publicSummary) {
-        return { ok: false as const, error: "Write a traveler-facing summary before publishing this deal." };
-      }
-      const publicText = `${publicTitle || ""} ${publicSummary}`;
-      if (hasTradeLanguage(publicText)) {
-        return { ok: false as const, error: "Public copy still contains advisor-only language (commission, net rate, fam trip). Rewrite it for travelers." };
-      }
-      const violation = policyViolation(publicText) ?? restrictedBrand(`${deal.supplier} ${deal.title}`);
-      if (violation) {
-        return { ok: false as const, error: violation };
-      }
+      const blocker = publishBlocker({ ...deal, publicTitle, publicSummary });
+      if (blocker) return { ok: false as const, error: blocker };
     }
 
     await ctx.db.patch(args.id, {
@@ -267,5 +324,82 @@ export const unpublishAllInternal = internalMutation({
     const published = await ctx.db.query("foraDeals").withIndex("by_published", q => q.eq("published", true)).collect();
     for (const deal of published) await ctx.db.patch(deal._id, { published: false, updatedAt: Date.now() });
     return { unpublished: published.length };
+  },
+});
+
+/**
+ * Bulk publish / unpublish. Publishing runs the same gate per deal and reports
+ * each rejection instead of failing the whole batch, so a curation pass over
+ * thousands of imported offers stays a single action.
+ */
+export const bulkSetPublishedInternal = internalMutation({
+  args: { ids: v.array(v.id("foraDeals")), published: v.boolean() },
+  handler: async (ctx, args) => {
+    const today = todayIso();
+    const now = Date.now();
+    const failures: Array<{ id: string; title: string; error: string }> = [];
+    let updated = 0;
+
+    for (const id of args.ids) {
+      const deal = await ctx.db.get(id);
+      if (!deal) {
+        failures.push({ id, title: "Unknown deal", error: "Deal not found" });
+        continue;
+      }
+      if (args.published) {
+        const blocker = publishBlocker(deal, today);
+        if (blocker) {
+          failures.push({ id, title: deal.publicTitle || deal.title, error: blocker });
+          continue;
+        }
+      }
+      if (deal.published !== args.published) {
+        await ctx.db.patch(id, { published: args.published, updatedAt: now });
+      }
+      updated += 1;
+    }
+
+    return { updated, failures };
+  },
+});
+
+/**
+ * Daily housekeeping (see convex/crons.ts): pull any published deal whose
+ * booking or travel window has closed off the public site, and record what was
+ * retired so the change is auditable from the analytics log.
+ */
+export const retireExpiredInternal = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const today = todayIso();
+    const published = await ctx.db
+      .query("foraDeals")
+      .withIndex("by_published", q => q.eq("published", true))
+      .collect();
+
+    const retired = published.filter(deal => isExpired(deal, today));
+    for (const deal of retired) {
+      await ctx.db.patch(deal._id, { published: false, updatedAt: Date.now() });
+    }
+
+    if (retired.length) {
+      await ctx.db.insert("analyticsEvents", {
+        event: "fora_deals_retired",
+        surface: "cron",
+        metadata: JSON.stringify({
+          count: retired.length,
+          deals: retired.slice(0, 25).map(deal => ({
+            id: deal._id,
+            title: deal.publicTitle || deal.title,
+            supplier: deal.supplier,
+            bookingEnd: deal.bookingEnd,
+            travelEnd: deal.travelEnd,
+          })),
+        }),
+        createdAt: Date.now(),
+      });
+    }
+
+    return { retired: retired.length };
   },
 });
