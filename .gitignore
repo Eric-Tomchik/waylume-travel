@@ -13,3 +13,4 @@ cloudflare-env.d.ts
 .DS_Store
 *.log
 .convex
+.worktrees/
